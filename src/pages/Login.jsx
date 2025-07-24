@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../models/auth";
+import { useSelector } from "react-redux";
 
 export default function Login({ onLogin, isAuthenticated }) {
   const { setSubjects, setMaterials } = useSubjectContext();
@@ -27,6 +28,10 @@ export default function Login({ onLogin, isAuthenticated }) {
     return false;
   });
   const navigate = useNavigate();
+  const reduxIsAuthenticated = useSelector(
+    (state) => state.auth.isAuthenticated
+  );
+  const userRole = useSelector((state) => state.auth.user?.profile?.role);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -37,40 +42,31 @@ export default function Login({ onLogin, isAuthenticated }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
     if (!email || !password) {
       setError("Please enter both email and password.");
       return;
     }
-
     setIsLoading(true);
-
     try {
-      // Call your API endpoint
       const response = await login(email, password);
       console.log("Login response:", response);
-
       if (response) {
-        // Login successful
-        console.log("Login successful:", response);
-
-        // Store the token and user data in localStorage
+        // Store in localStorage
         localStorage.setItem("session_token", response.session);
         localStorage.setItem("user_data", JSON.stringify(response.user));
         localStorage.setItem("user_profile", JSON.stringify(response.profile));
 
-        // Load static data into context after login
+        // Load static data
         try {
           const subjectsModule = await import("../data/subjects.json");
           setSubjects(subjectsModule.default);
-
           const materialsModule = await import("../data/materials.json");
           setMaterials(materialsModule.default);
         } catch (dataError) {
           console.warn("Could not load static data:", dataError);
         }
 
-        // Update Redux store with user data
+        // Update Redux store
         onLogin({
           email: response.user.email,
           name: response.profile?.full_name || response.user.email,
@@ -79,14 +75,7 @@ export default function Login({ onLogin, isAuthenticated }) {
           profile: response.profile,
         });
 
-        // navigate("/", { replace: true });
-        if (response.profile?.role === "admin") {
-          navigate("/admin", { replace: true });
-        } else if (response.profile?.role === "teacher") {
-          navigate("/teacher", { replace: true }); // Optional: separate teacher dashboard
-        } else {
-          navigate("/", { replace: true }); // Student dashboard
-        }
+        // Don't navigate immediately - let useEffect handle it
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -95,6 +84,19 @@ export default function Login({ onLogin, isAuthenticated }) {
       setIsLoading(false);
     }
   };
+
+  // Navigate after Redux state is updated
+  useEffect(() => {
+    if (reduxIsAuthenticated && userRole) {
+      if (userRole === "admin") {
+        navigate("/admin", { replace: true });
+      } else if (userRole === "teacher") {
+        navigate("/teacher", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
+    }
+  }, [reduxIsAuthenticated, userRole, navigate]);
 
   const toggleDarkMode = () => {
     const html = document.documentElement;

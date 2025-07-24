@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Menu, X, Sun, Moon, User } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import { logout } from "../models/auth";
 
 const Navbar = ({ onLogout, isAuthenticated }) => {
   const user = JSON.parse(localStorage.getItem("user_profile") || "{}");
 
+  const navigate = useNavigate();
   // console.log("User Profile:", user);
   const [isOpen, setIsOpen] = useState(false);
   const [isDark, setIsDark] = useState(() => {
@@ -63,6 +64,7 @@ const Navbar = ({ onLogout, isAuthenticated }) => {
       // You might want to show a toast notification here
     } finally {
       onLogout();
+      navigate("/", { replace: true });
     }
   };
 
