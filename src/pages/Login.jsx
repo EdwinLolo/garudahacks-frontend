@@ -12,9 +12,11 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../models/auth";
+import { useSelector } from "react-redux";
 
 export default function Login({ onLogin, isAuthenticated }) {
-  const { setSubjects, setMaterials, fetchSubjectsByGrade } = useSubjectContext();
+  const { setSubjects, setMaterials, fetchSubjectsByGrade } =
+    useSubjectContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -27,6 +29,10 @@ export default function Login({ onLogin, isAuthenticated }) {
     return false;
   });
   const navigate = useNavigate();
+  const reduxIsAuthenticated = useSelector(
+    (state) => state.auth.isAuthenticated
+  );
+  const userRole = useSelector((state) => state.auth.user?.profile?.role);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -55,12 +61,8 @@ export default function Login({ onLogin, isAuthenticated }) {
         console.log("Login successful:", response);
 
         // Store the token and user data in localStorage (use same keys as register)
-        if (response.session?.access_token) {
-          localStorage.setItem("access_token", response.session.access_token);
-        }
-        if (response.session?.refresh_token) {
-          localStorage.setItem("refresh_token", response.session.refresh_token);
-        }
+
+        localStorage.setItem("session_token", response.session);
         localStorage.setItem("user_data", JSON.stringify(response.user));
         localStorage.setItem("user_profile", JSON.stringify(response.profile));
 
@@ -71,13 +73,18 @@ export default function Login({ onLogin, isAuthenticated }) {
         try {
           let grade = 0;
           if (response.user && response.user.grade) grade = response.user.grade;
-          else if (response.profile && response.profile.grade) grade = response.profile.grade;
+          else if (response.profile && response.profile.grade)
+            grade = response.profile.grade;
           if (!grade) {
             // fallback: try from localStorage
             const userData = JSON.parse(localStorage.getItem("user_data"));
             if (userData && userData.grade) grade = userData.grade;
           }
-          const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/material/get-materials-by-class/${grade}`);
+          const res = await fetch(
+            `${
+              import.meta.env.VITE_API_BASE_URL
+            }/material/get-materials-by-class/${grade}`
+          );
           const materials = await res.json();
           setMaterials(Array.isArray(materials) ? materials : []);
         } catch (dataError) {
@@ -104,6 +111,18 @@ export default function Login({ onLogin, isAuthenticated }) {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (reduxIsAuthenticated && userRole) {
+      if (userRole === "admin") {
+        navigate("/admin", { replace: true });
+      } else if (userRole === "teacher") {
+        navigate("/teacher", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
+    }
+  }, [reduxIsAuthenticated, userRole, navigate]);
 
   const toggleDarkMode = () => {
     const html = document.documentElement;
