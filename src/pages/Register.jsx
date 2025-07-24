@@ -9,15 +9,23 @@ import {
   Lock,
   Moon,
   Sun,
+  User,
+  UserCheck,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../models/auth";
+import { signup } from "../models/auth"; // You'll need to create this function
 
-export default function Login({ onLogin, isAuthenticated }) {
+export default function Register({ onLogin, isAuthenticated }) {
   const { setSubjects, setMaterials } = useSubjectContext();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
+    name: "",
+    // role: "student",
+  });
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isDark, setIsDark] = useState(() => {
@@ -34,32 +42,73 @@ export default function Login({ onLogin, isAuthenticated }) {
     }
   }, [isAuthenticated, navigate]);
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const validateForm = () => {
+    const { email, password, confirmPassword, name } = formData;
+
+    if (!email || !password || !confirmPassword || !name) {
+      setError("All fields are required.");
+      return false;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      return false;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address.");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (!email || !password) {
-      setError("Please enter both email and password.");
+    if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // Call your API endpoint
-      const response = await login(email, password);
-      console.log("Login response:", response);
+      // Call your signup API endpoint
+      const response = await signup(
+        formData.email,
+        formData.password,
+        // formData.role,
+        formData.name
+      );
+
+      console.log("Signup response:", response);
 
       if (response) {
-        // Login successful
-        console.log("Login successful:", response);
+        // Signup successful
+        console.log("Signup successful:", response);
 
         // Store the token and user data in localStorage
-        localStorage.setItem("session_token", response.session);
+        localStorage.setItem("access_token", response.session.access_token);
+        localStorage.setItem("refresh_token", response.session.refresh_token);
         localStorage.setItem("user_data", JSON.stringify(response.user));
         localStorage.setItem("user_profile", JSON.stringify(response.profile));
 
-        // Load static data into context after login
+        // Load static data into context after signup
         try {
           const subjectsModule = await import("../data/subjects.json");
           setSubjects(subjectsModule.default);
@@ -79,13 +128,12 @@ export default function Login({ onLogin, isAuthenticated }) {
           profile: response.profile,
         });
 
-        // Navigation will happen automatically due to isAuthenticated change
-        // But we can also navigate explicitly
+        // Navigate to dashboard
         navigate("/", { replace: true });
       }
     } catch (error) {
-      console.error("Login error:", error);
-      setError(error.message || "Login failed. Please try again.");
+      console.error("Signup error:", error);
+      setError(error.message || "Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -151,15 +199,15 @@ export default function Login({ onLogin, isAuthenticated }) {
             <div className="flex items-center justify-center space-x-2 mb-4">
               <BookOpen className="w-6 h-6 text-blue-600" />
               <h2 className="text-2xl md:text-3xl font-bold transition-colors duration-300 dark:text-white">
-                Welcome Back
+                Join Our Community
               </h2>
             </div>
             <p className="transition-colors duration-300 dark:text-gray-300">
-              Unlock your potential through learning
+              Start your learning journey today
             </p>
           </div>
 
-          {/* Main Login Card */}
+          {/* Main Register Card */}
           <div className="backdrop-blur-lg shadow-2xl rounded-3xl p-6 md:p-8 border transition-colors duration-300 bg-white/80 border-white/20 dark:bg-gray-800/80 dark:border-gray-700/20">
             {error && (
               <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg">
@@ -169,8 +217,31 @@ export default function Login({ onLogin, isAuthenticated }) {
               </div>
             )}
 
-            {/* Convert to form for proper submission */}
+            {/* Registration Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Full Name Input */}
+              <div className="relative">
+                <label
+                  className="block text-sm font-semibold mb-2 transition-colors duration-300 dark:text-gray-200"
+                  htmlFor="name">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors duration-300 text-blue-500 dark:text-blue-300" />
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    autoComplete="name"
+                    required
+                    className="w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-200 focus:border-blue-400 backdrop-blur-sm transition-all duration-300 border-gray-200 bg-gray-50/50 placeholder-gray-500 hover:bg-white/70 dark:border-gray-600 dark:bg-gray-700/50 dark:text-white dark:placeholder-gray-400 dark:hover:bg-gray-700/70"
+                    placeholder="Enter your full name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
               {/* Email Input */}
               <div className="relative">
                 <label
@@ -182,16 +253,40 @@ export default function Login({ onLogin, isAuthenticated }) {
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors duration-300 text-blue-500 dark:text-blue-300" />
                   <input
                     id="email"
+                    name="email"
                     type="email"
                     autoComplete="email"
                     required
                     className="w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-200 focus:border-blue-400 backdrop-blur-sm transition-all duration-300 border-gray-200 bg-gray-50/50 placeholder-gray-500 hover:bg-white/70 dark:border-gray-600 dark:bg-gray-700/50 dark:text-white dark:placeholder-gray-400 dark:hover:bg-gray-700/70"
                     placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={formData.email}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
+
+              {/* Role Selection */}
+              {/* <div className="relative">
+                <label
+                  className="block text-sm font-semibold mb-2 transition-colors duration-300 dark:text-gray-200"
+                  htmlFor="role">
+                  Role
+                </label>
+                <div className="relative">
+                  <UserCheck className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors duration-300 text-blue-500 dark:text-blue-300" />
+                  <select
+                    id="role"
+                    name="role"
+                    required
+                    className="w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-200 focus:border-blue-400 backdrop-blur-sm transition-all duration-300 border-gray-200 bg-gray-50/50 hover:bg-white/70 dark:border-gray-600 dark:bg-gray-700/50 dark:text-white dark:hover:bg-gray-700/70"
+                    value={formData.role}
+                    onChange={handleInputChange}>
+                    <option value="student">Student</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+              </div> */}
 
               {/* Password Input */}
               <div className="relative">
@@ -204,13 +299,14 @@ export default function Login({ onLogin, isAuthenticated }) {
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors duration-300 text-blue-500 dark:text-blue-300" />
                   <input
                     id="password"
+                    name="password"
                     type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
+                    autoComplete="new-password"
                     required
                     className="w-full pl-12 pr-12 py-3 border rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-200 focus:border-blue-400 backdrop-blur-sm transition-all duration-300 border-gray-200 bg-gray-50/50 placeholder-gray-500 hover:bg-white/70 dark:border-gray-600 dark:bg-gray-700/50 dark:text-white dark:placeholder-gray-400 dark:hover:bg-gray-700/70"
                     placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={formData.password}
+                    onChange={handleInputChange}
                   />
                   <button
                     type="button"
@@ -225,25 +321,68 @@ export default function Login({ onLogin, isAuthenticated }) {
                 </div>
               </div>
 
-              {/* Remember Me & Forgot Password */}
-              <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-200"
-                  />
-                  <span className="transition-colors duration-300 dark:text-gray-300">
-                    Remember me
-                  </span>
+              {/* Confirm Password Input */}
+              <div className="relative">
+                <label
+                  className="block text-sm font-semibold mb-2 transition-colors duration-300 dark:text-gray-200"
+                  htmlFor="confirmPassword">
+                  Confirm Password
                 </label>
-                <a
-                  href="#"
-                  className="text-blue-600 hover:text-blue-700 font-medium hover:underline transition-colors">
-                  Forgot password?
-                </a>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors duration-300 text-blue-500 dark:text-blue-300" />
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    required
+                    className="w-full pl-12 pr-12 py-3 border rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-200 focus:border-blue-400 backdrop-blur-sm transition-all duration-300 border-gray-200 bg-gray-50/50 placeholder-gray-500 hover:bg-white/70 dark:border-gray-600 dark:bg-gray-700/50 dark:text-white dark:placeholder-gray-400 dark:hover:bg-gray-700/70"
+                    placeholder="Confirm your password"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 transition-colors text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                    onClick={() =>
+                      setShowConfirmPassword(!showConfirmPassword)
+                    }>
+                    {showConfirmPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
               </div>
 
-              {/* Login Button - Changed to type="submit" */}
+              {/* Terms and Conditions */}
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="terms"
+                  required
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-200"
+                />
+                <label
+                  htmlFor="terms"
+                  className="text-sm transition-colors duration-300 dark:text-gray-300">
+                  I agree to the{" "}
+                  <a
+                    href="#"
+                    className="text-blue-600 hover:text-blue-700 font-medium hover:underline">
+                    Terms of Service
+                  </a>{" "}
+                  and{" "}
+                  <a
+                    href="#"
+                    className="text-blue-600 hover:text-blue-700 font-medium hover:underline">
+                    Privacy Policy
+                  </a>
+                </label>
+              </div>
+
+              {/* Register Button */}
               <button
                 type="submit"
                 disabled={isLoading}
@@ -251,23 +390,23 @@ export default function Login({ onLogin, isAuthenticated }) {
                 {isLoading ? (
                   <div className="flex items-center justify-center space-x-2">
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    <span>Signing in...</span>
+                    <span>Creating Account...</span>
                   </div>
                 ) : (
-                  "Sign In to Learn"
+                  "Create Account"
                 )}
               </button>
             </form>
 
-            {/* Sign Up Link */}
+            {/* Login Link */}
             <div className="mt-6 text-center">
               <p className="text-sm transition-colors duration-300 dark:text-gray-300">
-                New to learning?{" "}
-                <a
-                  href="/register"
+                Already have an account?{" "}
+                <button
+                  onClick={() => navigate("/login")}
                   className="text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-colors">
-                  Create your account
-                </a>
+                  Sign in here
+                </button>
               </p>
             </div>
           </div>

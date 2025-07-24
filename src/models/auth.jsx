@@ -38,13 +38,13 @@ export const login = async (email, password) => {
 export const signup = async (
   email,
   password,
-  full_name,
+  name,
   role = "student",
   grade = 0
 ) => {
   return apiCall("/signup", {
     method: "POST",
-    body: JSON.stringify({ email, password, role, full_name, grade }),
+    body: JSON.stringify({ email, password, role, name, grade }),
   });
 };
 

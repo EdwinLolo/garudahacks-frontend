@@ -1,12 +1,18 @@
-
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import store from "./store";
 import { login, logout } from "./authSlice";
 import Navbar from "./layout/Navbar";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Footer from "./layout/Footer";
 import SubjectDetail from "./pages/SubjectDetail";
 import MaterialDetail from "./pages/MaterialDetail";
@@ -54,10 +60,26 @@ function AppContent() {
 
   return (
     <>
-      {!isLoginPage && <Navbar onLogout={handleLogout} isAuthenticated={isAuthenticated} />}
+      {!isLoginPage && (
+        <Navbar onLogout={handleLogout} isAuthenticated={isAuthenticated} />
+      )}
       <main>
         <Routes>
-          <Route path="/login" element={<Login onLogin={handleLogin} isAuthenticated={isAuthenticated} />} />
+          <Route
+            path="/login"
+            element={
+              <Login onLogin={handleLogin} isAuthenticated={isAuthenticated} />
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <Register
+                onLogin={handleLogin}
+                isAuthenticated={isAuthenticated}
+              />
+            }
+          />
           <Route
             path="/"
             element={
