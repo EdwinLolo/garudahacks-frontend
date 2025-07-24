@@ -1,22 +1,10 @@
-import React, { useEffect, useState } from "react";
-// import subjectsData from "../data/subjects.json";
+import React from "react";
 import SubjectCard from "../components/SubjectCard";
+import { useSubjectContext } from "../context/SubjectContext";
+
 
 const Dashboard = () => {
-  const [subjects, setSubjects] = useState([]);
-
-  useEffect(() => {
-    const fetchSubjects = async () => {
-      try {
-        const response = await fetch('https://garudahacks6-express-be-zy4zf.ondigitalocean.app/subject/get-subjects');
-        const data = await response.json();
-        setSubjects(data);
-      } catch (error) {
-        setSubjects([]);
-      }
-    };
-    fetchSubjects();
-  }, []);
+  const { subjects } = useSubjectContext();
 
   return (
     <section className="min-h-screen pt-22 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors">
@@ -29,9 +17,13 @@ const Dashboard = () => {
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          {subjects.map((subject) => (
-            <SubjectCard key={subject.id} subject={subject} />
-          ))}
+          {subjects && subjects.length > 0 ? (
+            subjects.map((subject) => (
+              <SubjectCard key={subject.id} subject={subject} />
+            ))
+          ) : (
+            <div className="col-span-2 text-center text-gray-500 dark:text-gray-400">No subjects found for your class.</div>
+          )}
         </div>
       </div>
     </section>

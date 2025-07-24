@@ -1,21 +1,40 @@
 import React, { createContext, useContext, useState } from 'react';
-import subjectsData from '../data/subjects.json';
-import materialsData from '../data/materials.json';
 
 const SubjectContext = createContext();
 
-export const SubjectProvider = ({ children, userId }) => {
-  // In the future, fetch subjects/materials for the userId from API
-  // For now, use static data
-  const [subjects, setSubjects] = useState(subjectsData);
-  const [materials, setMaterials] = useState(materialsData);
+export const SubjectProvider = ({ children }) => {
+  const [subjects, setSubjects] = useState([]);
+  const [materials, setMaterials] = useState([]);
 
-  // Example: filter by userId if needed in the future
-  // const userSubjects = subjects.filter(s => s.userId === userId);
-  // const userMaterials = materials.filter(m => m.userId === userId);
+  // Fetch subjects from API by classNumber (grade)
+  const fetchSubjectsByGrade = async () => {
+    try {
+      // Try to get grade from user_data or user_profile in localStorage
+      let grade = 0;
+      try {
+        const userData = JSON.parse(localStorage.getItem("user_data"));
+        if (userData && userData.grade) grade = userData.grade;
+      } catch {}
+      if (!grade) {
+        try {
+          const userProfile = JSON.parse(localStorage.getItem("user_profile"));
+          if (userProfile && userProfile.grade) grade = userProfile.grade;
+        } catch {}
+      }
+      if (!grade) grade = 0;
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/subject/get-subjects-by-class/${grade}`
+      );
+      const data = await response.json();
+      setSubjects(Array.isArray(data) ? data : []);
+    } catch (error) {
+      setSubjects([]);
+    }
+  };
 
   return (
-    <SubjectContext.Provider value={{ subjects, setSubjects, materials, setMaterials }}>
+    <SubjectContext.Provider value={{ subjects, setSubjects, materials, setMaterials, fetchSubjectsByGrade }}>
       {children}
     </SubjectContext.Provider>
   );

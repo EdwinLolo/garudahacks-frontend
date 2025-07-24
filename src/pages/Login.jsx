@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { login } from "../models/auth";
 
 export default function Login({ onLogin, isAuthenticated }) {
-  const { setSubjects, setMaterials } = useSubjectContext();
+  const { setSubjects, setMaterials, fetchSubjectsByGrade } = useSubjectContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -54,20 +54,34 @@ export default function Login({ onLogin, isAuthenticated }) {
         // Login successful
         console.log("Login successful:", response);
 
-        // Store the token and user data in localStorage
-        localStorage.setItem("session_token", response.session);
+        // Store the token and user data in localStorage (use same keys as register)
+        if (response.session?.access_token) {
+          localStorage.setItem("access_token", response.session.access_token);
+        }
+        if (response.session?.refresh_token) {
+          localStorage.setItem("refresh_token", response.session.refresh_token);
+        }
         localStorage.setItem("user_data", JSON.stringify(response.user));
         localStorage.setItem("user_profile", JSON.stringify(response.profile));
 
-        // Load static data into context after login
-        try {
-          const subjectsModule = await import("../data/subjects.json");
-          setSubjects(subjectsModule.default);
+        // Fetch subjects by grade (class) after login
+        await fetchSubjectsByGrade();
 
-          const materialsModule = await import("../data/materials.json");
-          setMaterials(materialsModule.default);
+        // Fetch materials by class/grade
+        try {
+          let grade = 0;
+          if (response.user && response.user.grade) grade = response.user.grade;
+          else if (response.profile && response.profile.grade) grade = response.profile.grade;
+          if (!grade) {
+            // fallback: try from localStorage
+            const userData = JSON.parse(localStorage.getItem("user_data"));
+            if (userData && userData.grade) grade = userData.grade;
+          }
+          const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/material/get-materials-by-class/${grade}`);
+          const materials = await res.json();
+          setMaterials(Array.isArray(materials) ? materials : []);
         } catch (dataError) {
-          console.warn("Could not load static data:", dataError);
+          console.warn("Could not load materials from API:", dataError);
         }
 
         // Update Redux store with user data

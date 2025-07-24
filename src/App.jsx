@@ -48,7 +48,7 @@ function AppContent() {
   const location = useLocation();
   const dispatch = useDispatch();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  const isLoginPage = location.pathname === "/login";
+  const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
 
   const handleLogin = (user) => {
     dispatch(login(user));
@@ -60,7 +60,7 @@ function AppContent() {
 
   return (
     <>
-      {!isLoginPage && (
+      {!isAuthPage && (
         <Navbar onLogout={handleLogout} isAuthenticated={isAuthenticated} />
       )}
       <main>
@@ -106,7 +106,7 @@ function AppContent() {
           />
         </Routes>
       </main>
-      {!isLoginPage && <Footer />}
+      {!isAuthPage && <Footer />}
     </>
   );
 }
