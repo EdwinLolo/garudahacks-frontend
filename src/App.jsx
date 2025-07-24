@@ -16,6 +16,7 @@ import Register from "./pages/Register";
 import Footer from "./layout/Footer";
 import SubjectDetail from "./pages/SubjectDetail";
 import MaterialDetail from "./pages/MaterialDetail";
+import AdminDashboard from "./pages/AdminDashboard";
 import { SubjectProvider } from "./context/SubjectContext";
 
 function PrivateRoute({ isAuthenticated, children }) {
@@ -48,7 +49,8 @@ function AppContent() {
   const location = useLocation();
   const dispatch = useDispatch();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
+  const isAuthPage =
+    location.pathname === "/login" || location.pathname === "/register";
 
   const handleLogin = (user) => {
     dispatch(login(user));
@@ -78,6 +80,14 @@ function AppContent() {
                 onLogin={handleLogin}
                 isAuthenticated={isAuthenticated}
               />
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute isAuthenticated={isAuthenticated}>
+                <AdminDashboard />
+              </PrivateRoute>
             }
           />
           <Route

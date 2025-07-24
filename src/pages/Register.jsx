@@ -16,13 +16,15 @@ import { useNavigate } from "react-router-dom";
 import { signup } from "../models/auth"; // You'll need to create this function
 
 export default function Register({ onLogin, isAuthenticated }) {
-  const { setSubjects, setMaterials, fetchSubjectsByGrade } = useSubjectContext();
+  const { setSubjects, setMaterials } = useSubjectContext();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
     name: "",
-    // role: "student",
+    role: "student",
+    grade: 1,
+    school_name: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -51,9 +53,9 @@ export default function Register({ onLogin, isAuthenticated }) {
   };
 
   const validateForm = () => {
-    const { email, password, confirmPassword, name } = formData;
+    const { email, password, confirmPassword, name, school_name } = formData;
 
-    if (!email || !password || !confirmPassword || !name) {
+    if (!email || !password || !confirmPassword || !name || !school_name) {
       setError("All fields are required.");
       return false;
     }
@@ -92,8 +94,10 @@ export default function Register({ onLogin, isAuthenticated }) {
       const response = await signup(
         formData.email,
         formData.password,
-        // formData.role,
-        formData.name
+        formData.name,
+        formData.role,
+        formData.grade,
+        formData.school_name
       );
 
       console.log("Signup response:", response);
@@ -103,34 +107,10 @@ export default function Register({ onLogin, isAuthenticated }) {
         console.log("Signup successful:", response);
 
         // Store the token and user data in localStorage
-        if (response.session?.access_token) {
-          localStorage.setItem("access_token", response.session.access_token);
-        }
-        if (response.session?.refresh_token) {
-          localStorage.setItem("refresh_token", response.session.refresh_token);
-        }
+        localStorage.setItem("access_token", response.session.access_token);
+        localStorage.setItem("refresh_token", response.session.refresh_token);
         localStorage.setItem("user_data", JSON.stringify(response.user));
         localStorage.setItem("user_profile", JSON.stringify(response.profile));
-
-        // Fetch subjects by grade (class) after signup
-        await fetchSubjectsByGrade();
-
-        // Fetch materials by class/grade
-        try {
-          let grade = 0;
-          if (response.user && response.user.grade) grade = response.user.grade;
-          else if (response.profile && response.profile.grade) grade = response.profile.grade;
-          if (!grade) {
-            // fallback: try from localStorage
-            const userData = JSON.parse(localStorage.getItem("user_data"));
-            if (userData && userData.grade) grade = userData.grade;
-          }
-          const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/material/get-materials-by-class/${grade}`);
-          const materials = await res.json();
-          setMaterials(Array.isArray(materials) ? materials : []);
-        } catch (dataError) {
-          console.warn("Could not load materials from API:", dataError);
-        }
 
         // Update Redux store with user data
         onLogin({
@@ -278,28 +258,51 @@ export default function Register({ onLogin, isAuthenticated }) {
                 </div>
               </div>
 
-              {/* Role Selection */}
-              {/* <div className="relative">
+              {/* Grade Input */}
+              <div className="relative">
                 <label
                   className="block text-sm font-semibold mb-2 transition-colors duration-300 dark:text-gray-200"
-                  htmlFor="role">
-                  Role
+                  htmlFor="name">
+                  Grade
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors duration-300 text-blue-500 dark:text-blue-300" />
+                  <input
+                    id="grade"
+                    name="grade"
+                    type="text"
+                    autoComplete="name"
+                    required
+                    className="w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-200 focus:border-blue-400 backdrop-blur-sm transition-all duration-300 border-gray-200 bg-gray-50/50 placeholder-gray-500 hover:bg-white/70 dark:border-gray-600 dark:bg-gray-700/50 dark:text-white dark:placeholder-gray-400 dark:hover:bg-gray-700/70"
+                    placeholder="Enter your Grade"
+                    value={formData.grade}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
+              {/* Role Selection */}
+              <div className="relative">
+                <label
+                  className="block text-sm font-semibold mb-2 transition-colors duration-300 dark:text-gray-200"
+                  htmlFor="school_name">
+                  School Name
                 </label>
                 <div className="relative">
                   <UserCheck className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors duration-300 text-blue-500 dark:text-blue-300" />
                   <select
-                    id="role"
-                    name="role"
+                    id="school_name"
+                    name="school_name"
                     required
                     className="w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-200 focus:border-blue-400 backdrop-blur-sm transition-all duration-300 border-gray-200 bg-gray-50/50 hover:bg-white/70 dark:border-gray-600 dark:bg-gray-700/50 dark:text-white dark:hover:bg-gray-700/70"
-                    value={formData.role}
+                    value={formData.school_name}
                     onChange={handleInputChange}>
-                    <option value="student">Student</option>
-                    <option value="teacher">Teacher</option>
-                    <option value="admin">Admin</option>
+                    <option value="SD 1">SD 1</option>
+                    <option value="SD 2">SD 2</option>
+                    <option value="SD 3">SD 3</option>
                   </select>
                 </div>
-              </div> */}
+              </div>
 
               {/* Password Input */}
               <div className="relative">
