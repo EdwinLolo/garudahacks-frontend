@@ -1,7 +1,7 @@
 export const getBaseUrl = () => {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL;
-  console.log("Using API base URL:", baseUrl);
-  return baseUrl;
+  const baseUrl1 = import.meta.env.VITE_API_BASE_URL;
+  console.log("Using API base URL:", baseUrl1);
+  return baseUrl1;
 };
 
 function BaseURL() {
