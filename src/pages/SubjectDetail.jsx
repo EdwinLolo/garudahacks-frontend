@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Loading from "../components/Loading";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSubjectContext } from "../context/SubjectContext";
 
@@ -57,20 +58,8 @@ const SubjectDetail = () => {
     );
   }
 
-  if (loadingMaterials) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center text-blue-500">Loading materials...</div>
-      </div>
-    );
-  }
-
-  if (loadingRole) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center text-blue-500">Loading...</div>
-      </div>
-    );
+  if (loadingMaterials || loadingRole) {
+    return <Loading />;
   }
 
   return (
