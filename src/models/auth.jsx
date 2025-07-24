@@ -48,10 +48,20 @@ export const signup = async (
   });
 };
 
-export const logout = () => {
+export const logout = async () => {
+  apiCall("/logout", {
+    method: "POST",
+  })
+    .then(() => {
+      console.log("Logout successful");
+    })
+    .catch((error) => {
+      console.error("Logout API error:", error);
+      // You might want to show a toast notification here
+    });
+
   // Clear localStorage
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("refresh_token");
+  localStorage.removeItem("session_token");
   localStorage.removeItem("user_data");
   localStorage.removeItem("user_profile");
 };

@@ -79,9 +79,14 @@ export default function Login({ onLogin, isAuthenticated }) {
           profile: response.profile,
         });
 
-        // Navigation will happen automatically due to isAuthenticated change
-        // But we can also navigate explicitly
-        navigate("/", { replace: true });
+        // navigate("/", { replace: true });
+        if (response.profile?.role === "admin") {
+          navigate("/admin", { replace: true });
+        } else if (response.profile?.role === "teacher") {
+          navigate("/teacher", { replace: true }); // Optional: separate teacher dashboard
+        } else {
+          navigate("/", { replace: true }); // Student dashboard
+        }
       }
     } catch (error) {
       console.error("Login error:", error);
