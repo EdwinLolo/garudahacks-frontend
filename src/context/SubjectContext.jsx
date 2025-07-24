@@ -52,7 +52,6 @@ export const SubjectProvider = ({ children }) => {
     }
   };
 
-  // Fetch materials by subject id
   const fetchMaterialsBySubject = async (subjectId) => {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/materials/get-materials-by-subject/${subjectId}`);
@@ -85,6 +84,27 @@ export const SubjectProvider = ({ children }) => {
     }
   };
 
+  const postSubject = async (payload) => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/subject/post-subject`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const newSubject = await res.json();
+      setSubjects((prevSubjects) => [...prevSubjects, newSubject]);
+      return newSubject;
+    } catch (error) {
+      console.error('Error posting subject:', error);
+      throw new Error('Failed to add subject');
+    }
+  };
+
   // On mount, auto-fetch subjects if user is logged in
   useEffect(() => {
     const sessionToken = localStorage.getItem("session_token");
@@ -106,6 +126,7 @@ export const SubjectProvider = ({ children }) => {
       fetchSubjectsByGrade,
       fetchMaterialsBySubject,
       fetchSubjectsAdmin,
+      postSubject,
       isLoadingSubjects,
       subjectsError
     }}>
