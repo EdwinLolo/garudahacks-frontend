@@ -9,6 +9,8 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Footer from "./layout/Footer";
 import SubjectDetail from "./pages/SubjectDetail";
+import MaterialDetail from "./pages/MaterialDetail";
+import { SubjectProvider } from "./context/SubjectContext";
 
 function PrivateRoute({ isAuthenticated, children }) {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
@@ -18,9 +20,21 @@ function App() {
   return (
     <Provider store={store}>
       <Router>
-        <AppContent />
+        <AppWithSubjectProvider />
       </Router>
     </Provider>
+  );
+}
+
+function AppWithSubjectProvider() {
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const user = useSelector((state) => state.auth.user);
+  // Use user.id or user.email as unique identifier if available
+  const userId = isAuthenticated && user ? user.id || user.email : undefined;
+  return (
+    <SubjectProvider userId={userId}>
+      <AppContent />
+    </SubjectProvider>
   );
 }
 
@@ -57,6 +71,14 @@ function AppContent() {
             element={
               <PrivateRoute isAuthenticated={isAuthenticated}>
                 <SubjectDetail />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/material/:id"
+            element={
+              <PrivateRoute isAuthenticated={isAuthenticated}>
+                <MaterialDetail />
               </PrivateRoute>
             }
           />

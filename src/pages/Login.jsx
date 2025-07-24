@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useSubjectContext } from "../context/SubjectContext";
 import { BookOpen, GraduationCap, Eye, EyeOff, Mail, Lock, Moon, Sun } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Login({ onLogin, isAuthenticated }) {
+    const { setSubjects, setMaterials } = useSubjectContext();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -37,6 +39,13 @@ export default function Login({ onLogin, isAuthenticated }) {
         setTimeout(() => {
             setIsLoading(false);
             if (email === validEmail && password === validPassword) {
+                // Load static data into context after login
+                import("../data/subjects.json").then((subjectsModule) => {
+                  setSubjects(subjectsModule.default);
+                });
+                import("../data/materials.json").then((materialsModule) => {
+                  setMaterials(materialsModule.default);
+                });
                 onLogin({ email, name: validName });
                 navigate("/", { replace: true });
             } else {

@@ -52,21 +52,21 @@ const Navbar = ({ onLogout, isAuthenticated }) => {
   };
 
   return (
-    <header className="dark:bg-gray-900 shadow-md fixed top-0 left-0 right-0 z-50 transition-colors">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+    <header className="bg-white dark:bg-gray-900 shadow-md fixed top-0 left-0 right-0 z-50 transition-colors">
+      <div className="container mx-auto px-6 md:px-10 py-4 flex items-center justify-between">
         {/* Left: Logo/Name */}
         <div className="flex items-center min-w-[120px]">
           <h1 className="text-xl font-bold text-blue-600 dark:text-blue-300">EduDash</h1>
         </div>
         {/* Center: Routes */}
-        <nav className="hidden md:flex gap-6 text-gray-700 dark:text-gray-200 font-medium items-center flex-1 justify-center">
+        <nav className="hidden md:flex gap-6 text-gray-700 dark:text-gray-200 font-medium items-center flex-1 justify-center px-2">
           <Link to="/" className="hover:text-blue-500 dark:hover:text-blue-400 transition">Home</Link>
           <Link to="/dashboard" className="hover:text-blue-500 dark:hover:text-blue-400 transition">Dashboard</Link>
           <Link to="/about" className="hover:text-blue-500 dark:hover:text-blue-400 transition">About</Link>
           <Link to="/contact" className="hover:text-blue-500 dark:hover:text-blue-400 transition">Contact</Link>
         </nav>
         {/* Right: Profile Dropdown */}
-        <div className="flex items-center gap-2 min-w-[48px]">
+        <div className="flex items-center gap-2 min-w-[48px] px-1">
           {/* Hamburger for mobile */}
           <button className="md:hidden text-gray-700 dark:text-gray-200" onClick={toggleMenu}>
             {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -109,7 +109,7 @@ const Navbar = ({ onLogout, isAuthenticated }) => {
       </div>
       {/* Mobile menu */}
       {isOpen && (
-        <div className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 px-4 pb-4">
+        <div className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 px-6 pb-4">
           <nav className="flex flex-col gap-3 mt-2 text-gray-700 dark:text-gray-200 font-medium">
             <Link to="/" className="hover:text-blue-500 dark:hover:text-blue-400 transition">Home</Link>
             <Link to="/dashboard" className="hover:text-blue-500 dark:hover:text-blue-400 transition">Dashboard</Link>

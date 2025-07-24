@@ -1,47 +1,8 @@
 [
   {
+    "id": 101,
     "subjectId": 1,
-    "materials": [
-      {
-        "id": 1,
-        "title": "Introduction to Programming",
-        "content": "Learn the basics of programming using Python."
-      },
-      {
-        "id": 2,
-        "title": "Web Development Fundamentals",
-        "content": "Understand HTML, CSS, and JavaScript to build web pages."
-      }
-    ]
-  },
-  {
-    "subjectId": 2,
-    "materials": [
-      {
-        "id": 1,
-        "title": "Entrepreneurship 101",
-        "content": "Explore the fundamentals of starting a business."
-      },
-      {
-        "id": 2,
-        "title": "Digital Marketing Basics",
-        "content": "Learn about SEO, SEM, and social media marketing."
-      }
-    ]
-  },
-  {
-    "subjectId": 3,
-    "materials": [
-      {
-        "id": 1,
-        "title": "Graphic Design Principles",
-        "content": "Discover the basics of visual design and composition."
-      },
-      {
-        "id": 2,
-        "title": "Creative Writing",
-        "content": "Develop your storytelling and writing skills."
-      }
-    ]
+    "title": "Rain",
+    "lesson_packet": "**Grade 4 English Lesson Plan: Rain**\n\n**1. Simple Lesson Plan for Teacher:**\n\n* **Objective:** Students will be able to understand the water cycle's role in rain and describe the effects of rain in Indonesia.\n* **Materials:** Whiteboard or projector, markers or pens, worksheet with reading passage and questions.\n* **Procedure:**\n    * **Introduction (5 minutes):** Begin by asking students about their experiences with rain.  Show pictures of rain in Indonesia (e.g., rice paddies after rain, people using umbrellas).\n    * **Reading (15 minutes):** Read the provided reading passage aloud, encouraging students to follow along.  Pause to explain vocabulary and clarify understanding.\n    * **Discussion (10 minutes):** Discuss the reading passage, prompting students to answer comprehension questions orally.\n    * **Activity (15 minutes):** Students complete the worksheet individually or in pairs.\n    * **Wrap-up (5 minutes):** Review answers and summarize key concepts.\n\n**2. Reading Passage for Students:**\n\n**The Wonderful Indonesian Rain**\n\nIndonesia is a country with many islands and lush green forests.  Rain is very important here!  When the sun heats the water in the ocean, rivers, and lakes, it turns into a gas called water vapor. This water vapor rises high into the sky.  As it rises, it cools and turns back into tiny water droplets.  These droplets collect together to form clouds.\n\nWhen the clouds get too full of water droplets, the droplets fall back to Earth as rain.  In Indonesia, this rain is vital for the rice paddies.  Farmers depend on the rain to water their rice plants, which provide food for many people.  The rain also helps the forests stay green and healthy.  Sometimes, the rain comes down very hard, causing floods.  But even then, the rain eventually replenishes the water supply, helping the land to recover.  Children often play in the puddles after a rain shower, enjoying the refreshing coolness.\n\nWe must always remember to be careful during heavy rain, because strong winds and flooding can be dangerous.\n\n**3. Worksheet: Questions & Answers**\n\n**Instructions:** Answer the following questions based on the reading passage.\n\n**1. What happens to water when the sun heats it?**\n    a) It freezes.\n    b) It turns into water vapor.\n    c) It disappears.\n    d) It becomes heavier.\n\n**Answer:** b) It turns into water vapor.\n\n**2. What are clouds made of?**\n    a) Dust\n    b) Ice cream\n    c) Tiny water droplets\n    d) Sand\n\n\n**Answer:** c) Tiny water droplets\n\n**3. Why is rain important for farmers in Indonesia?**\n_______________________________________________________________________________\n\n**Answer:**  Rain is important for farmers in Indonesia because it waters their rice plants, which provide food for many people.\n\n**4. What are two benefits of rain in Indonesia mentioned in the passage?**\n_______________________________________________________________________________\n\n**Answer:** Two benefits are watering rice paddies and keeping forests green and healthy (accept other reasonable answers based on text interpretation).\n\n**5. True or False: Heavy rain in Indonesia is never dangerous.**\n    a) True\n    b) False\n\n**Answer:** b) False\n\n\nThis lesson plan provides a basic framework.  The teacher can adjust the time allocation and activities to suit the specific needs and abilities of the students.  Consider incorporating visuals, songs, or games to make the lesson more engaging.  Pictures of the water cycle and Indonesian landscapes would be beneficial additions.\n"
   }
 ]

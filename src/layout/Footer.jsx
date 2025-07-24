@@ -22,11 +22,11 @@ const socialLinks = [
 ];
 
 const Footer = () => (
-  <footer className="bg-blue-500 dark:bg-gray-900 text-white py-10 border-t border-white dark:border-white transition-colors">
-    <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-0 text-center md:text-left">
+  <footer className="bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 py-10 border-t border-gray-100 dark:border-gray-800 transition-colors">
+    <div className="container mx-auto px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-0 text-center md:text-left">
       <div>
-        <h3 className="text-xl font-bold text-white mb-1">GarudaHacks</h3>
-        <p className="text-sm text-gray-200">Empowering innovators, one hack at a time.</p>
+        <h3 className="text-xl font-bold text-blue-600 dark:text-blue-300 mb-1">GarudaHacks</h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400">Empowering innovators, one hack at a time.</p>
       </div>
       <div className="flex gap-6">
         {socialLinks.map(({ href, label, icon }) => (
@@ -36,7 +36,7 @@ const Footer = () => (
             target="_blank"
             rel="noopener noreferrer"
             aria-label={label}
-            className="hover:scale-110 hover:text-white transition-all duration-200 ease-in-out"
+            className="hover:scale-110 hover:text-blue-500 dark:hover:text-blue-400 transition-all duration-200 ease-in-out"
             title={label}
           >
             {icon}
@@ -44,8 +44,8 @@ const Footer = () => (
         ))}
       </div>
     </div>
-    <div className="mt-6 text-sm text-center text-white border-t border-white dark:border-white pt-4">
-      &copy; {new Date().getFullYear()} <span className="font-semibold text-white">GarudaHacks</span>. All rights reserved.
+    <div className="mt-6 text-sm text-center text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-800 pt-4">
+      &copy; {new Date().getFullYear()} <span className="font-semibold text-blue-600 dark:text-blue-300">GarudaHacks</span>. All rights reserved.
     </div>
   </footer>
 );

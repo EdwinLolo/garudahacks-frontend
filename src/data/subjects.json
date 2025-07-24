@@ -1,20 +1,8 @@
 [
   {
     "id": 1,
-    "name": "Technology & Programming",
-    "description": "Learn to code, build web apps, and explore data science.",
-    "tag": "Grade 10"
-  },
-  {
-    "id": 2,
-    "name": "Business & Marketing",
-    "description": "Master entrepreneurship and digital marketing strategies.",
-    "tag": "Grade 10"
-  },
-  {
-    "id": 3,
-    "name": "Design & Creative Arts",
-    "description": "Express your creativity with design, writing, and multimedia.",
-    "tag": "Grade 8"
+    "title": "English",
+    "description": "This subject covers the English curriculum for Grade 4 students, focusing on reading comprehension, vocabulary building, and basic grammar skills.",
+    "tag": "Grade 4"
   }
 ]
