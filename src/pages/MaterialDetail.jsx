@@ -27,36 +27,48 @@ function parseLessonPacket(lessonPacket) {
 
 const MaterialDetail = () => {
   const { id } = useParams();
-  const { materials } = useSubjectContext();
+  const { materials, subjects } = useSubjectContext();
   const material = materials.find((m) => String(m.id) === String(id));
-
   if (!material) {
     return <div className="p-6 text-center text-red-500">Material not found.</div>;
   }
+  const subject = subjects.find((s) => String(s.subject_id) === String(material.subject_id));
+  const subjectName = subject ? subject.name || subject.title : "Material Detail";
 
-  const parsed = parseLessonPacket(material.lesson_packet);
+  // hasil_materi is a JSON string, parse it and extract lesson_packet
+  let lessonPacket = "";
+  try {
+    const hasil = typeof material.hasil_materi === 'string' ? JSON.parse(material.hasil_materi) : material.hasil_materi;
+    lessonPacket = hasil.lesson_packet || "";
+  } catch {
+    lessonPacket = material.lesson_packet || "";
+  }
+  const parsed = parseLessonPacket(lessonPacket);
 
   return (
     <div className="max-w-3xl mx-auto px-4 md:px-0 py-8">
-      <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-300 mb-4">{parsed.title}</h1>
-      {parsed.lessonPlan && (
-        <section className="mb-6">
-          <h2 className="text-lg font-semibold mb-2">Lesson Plan for Teacher</h2>
-          <div className="prose dark:prose-invert whitespace-pre-line">{parsed.lessonPlan}</div>
-        </section>
-      )}
-      {parsed.readingPassage && (
-        <section className="mb-6">
-          <h2 className="text-lg font-semibold mb-2">Reading Passage for Students</h2>
-          <div className="prose dark:prose-invert whitespace-pre-line">{parsed.readingPassage}</div>
-        </section>
-      )}
-      {parsed.worksheet && (
-        <section className="mb-6">
-          <h2 className="text-lg font-semibold mb-2">Worksheet: Questions & Answers</h2>
-          <div className="prose dark:prose-invert whitespace-pre-line">{parsed.worksheet}</div>
-        </section>
-      )}
+      <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-300 mb-2">{subjectName}</h1>
+      <h2 className="text-xl font-semibold mb-6">{material.nama_materi || parsed.title}</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 border border-gray-100 dark:border-gray-700">
+        {parsed.lessonPlan && (
+          <section className="mb-4">
+            <h4 className="text-md font-semibold mb-1">Lesson Plan for Teacher</h4>
+            <div className="prose dark:prose-invert whitespace-pre-line">{parsed.lessonPlan}</div>
+          </section>
+        )}
+        {parsed.readingPassage && (
+          <section className="mb-4">
+            <h4 className="text-md font-semibold mb-1">Reading Passage for Students</h4>
+            <div className="prose dark:prose-invert whitespace-pre-line">{parsed.readingPassage}</div>
+          </section>
+        )}
+        {parsed.worksheet && (
+          <section className="mb-4">
+            <h4 className="text-md font-semibold mb-1">Worksheet: Questions & Answers</h4>
+            <div className="prose dark:prose-invert whitespace-pre-line">{parsed.worksheet}</div>
+          </section>
+        )}
+      </div>
     </div>
   );
 };

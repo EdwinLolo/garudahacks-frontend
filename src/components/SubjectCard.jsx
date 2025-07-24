@@ -1,6 +1,8 @@
 import React from "react";
 import { Layers3, BookOpen, Briefcase, Palette } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useSubjectContext } from "../context/SubjectContext";
+import { useCallback } from "react";
 
 const iconMap = {
   "Technology & Programming": BookOpen,
@@ -8,14 +10,22 @@ const iconMap = {
   "Design & Creative Arts": Palette,
 };
 
+
 const SubjectCard = ({ subject }) => {
   const navigate = useNavigate();
+  const { materials, fetchMaterialsBySubject } = useSubjectContext();
   // Use title for icon mapping or fallback
   const Icon = iconMap[subject.title] || Layers3;
 
-  const handleClick = () => {
-    navigate(`/subject/${subject.id}`);
-  };
+  // Check if materials for this subject are already loaded
+  const hasMaterials = materials.some((m) => m.subjectId === subject.subject_id);
+
+  const handleClick = useCallback(async () => {
+    if (!hasMaterials) {
+      await fetchMaterialsBySubject(subject.subject_id);
+    }
+    navigate(`/subject/${subject.subject_id}`);
+  }, [hasMaterials, fetchMaterialsBySubject, subject.subject_id, navigate]);
 
   return (
    <div
@@ -25,7 +35,6 @@ const SubjectCard = ({ subject }) => {
       tabIndex={0}
       onKeyPress={e => { if (e.key === 'Enter') handleClick(); }}
     >
-      
         {subject.class && (
         <div className="absolute top-4 right-4">
           <span className="text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-3 py-1 rounded-full transition-colors">
@@ -41,7 +50,6 @@ const SubjectCard = ({ subject }) => {
       <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
         {subject.name}
       </h3>
-      {/* Optionally show description if available */}
       {subject.description && (
         <p className="text-sm text-gray-600 dark:text-gray-300">{subject.description}</p>
       )}

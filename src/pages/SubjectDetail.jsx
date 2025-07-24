@@ -8,10 +8,10 @@ const SubjectDetail = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
-  const subjectId = parseInt(id, 10);
+  const subjectId = String(id);
   const { subjects, materials } = useSubjectContext();
-  const subject = subjects.find((s) => s.id === subjectId);
-  const subjectMaterials = materials.filter((m) => m.subjectId === subjectId);
+  const subject = subjects.find((s) => String(s.subject_id) === subjectId);
+  const subjectMaterials = materials.filter((m) => String(m.subject_id) === subjectId);
 
   React.useEffect(() => {
     const fetchRole = async () => {
