@@ -1,61 +1,67 @@
-import React, { useState } from "react";
+// SubjectDetail.jsx
+import React, { useState, useEffect } from "react";
 import Loading from "../components/Loading";
 import { useParams, useNavigate } from "react-router-dom";
-import { useSubjectContext } from "../context/SubjectContext";
+import { useSubjectContext } from "../context/SubjectContext"; //
 
 const SubjectDetail = () => {
+  const navigate = useNavigate();
+
   const [role, setRole] = useState(null);
   const [loadingRole, setLoadingRole] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const subjectId = String(id);
-  const { subjects } = useSubjectContext();
-  const subject = subjects.find((s) => String(s.subject_id) === subjectId);
-  const [subjectMaterials, setSubjectMaterials] = React.useState([]);
-  const [loadingMaterials, setLoadingMaterials] = React.useState(true);
+  const [loadingMaterials, setLoadingMaterials] = useState(false);
 
-  React.useEffect(() => {
-    const fetchMaterials = async () => {
-      try {
-        const response = await fetch(`${getBaseUrl}/materials/get-materials`);
-        const data = await response.json();
-        const filtered = Array.isArray(data)
-          ? data.filter((m) => String(m.subject_id) === subjectId)
-          : [];
-        setSubjectMaterials(filtered);
-      } catch {
-        setSubjectMaterials([]);
-      } finally {
+  const { subjects, fetchMaterialsBySubject, isLoadingSubjects, subjectsError } = useSubjectContext();
+
+  const { id } = useParams();
+  const subjectId = String(id);
+  const subject = subjects.find((s) => String(s.subject_id) === subjectId);
+
+  const subjectMaterials = subject ? subject.materials || [] : [];
+
+  useEffect(() => {
+    async function loadMaterialsForSubject() {
+      if (subject && !subject.materials) {
+        setLoadingMaterials(true);
+        await fetchMaterialsBySubject(subject.subject_id);
         setLoadingMaterials(false);
       }
-    };
-    fetchMaterials();
-  }, [subjectId]);
+    }
+    if (!isLoadingSubjects && !subjectsError) {
+      loadMaterialsForSubject();
+    }
+  }, [subjectId, subject, fetchMaterialsBySubject, isLoadingSubjects, subjectsError]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const profileStr = localStorage.getItem("user_profile");
     let userRole = null;
     if (profileStr) {
       try {
         const profile = JSON.parse(profileStr);
         userRole = profile.role || null;
-      } catch {
+      } catch (error) {
+        console.error("Error parsing user_profile from localStorage:", error);
         userRole = null;
       }
     }
     setRole(userRole);
     setLoadingRole(false);
-  }, []);
+  }, []); 
 
-  if (!subject) {
+  if (isLoadingSubjects || loadingMaterials) {
+    return <Loading />;
+  }
+
+  if (subjectsError) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Subject not found</h2>
+        <div className="text-center text-red-500">
+          <h2 className="text-2xl font-bold mb-4">Error loading subjects</h2>
+          <p>{subjectsError}</p>
           <button
             onClick={() => navigate(-1)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg">
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">
             Go Back
           </button>
         </div>
@@ -63,7 +69,23 @@ const SubjectDetail = () => {
     );
   }
 
-  if (loadingMaterials || loadingRole) {
+  if (!subject) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Subject not found</h2>
+          <p className="text-gray-500 dark:text-gray-400">The subject with ID "{subjectId}" could not be found.</p>
+          <button
+            onClick={() => navigate(-1)}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (loadingRole) {
     return <Loading />;
   }
 
@@ -79,11 +101,14 @@ const SubjectDetail = () => {
           <div className="flex items-start justify-between mb-2">
             <h2 className="text-3xl font-bold">{subject.name}</h2>
           </div>
-          {/* Add description if available in subject */}
           {subject.description && (
             <p className="text-lg text-gray-700 dark:text-gray-300">
               {subject.description}
             </p>
+          )}
+          {/* Display material-specific error if present */}
+          {subject.materialsError && (
+            <p className="text-sm text-red-500 mt-2">{subject.materialsError}</p>
           )}
         </div>
         <div>
@@ -126,8 +151,10 @@ const SubjectDetail = () => {
             <ul className="space-y-4">
               {subjectMaterials.map((material) => (
                 <li
-                  key={material.id}
-                  className="bg-blue-50 dark:bg-blue-900 rounded-lg p-4 border border-blue-100 dark:border-blue-800">
+                  key={material.material_id || material.id} // Corrected: Using material.material_id as primary key
+                  className="bg-blue-50 dark:bg-blue-900 rounded-lg p-4 border border-blue-100 dark:border-blue-800 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-800 transition"
+                  onClick={() => navigate(`/material/${material.material_id || material.id}`)} // Navigate to individual material page
+                >
                   <h4 className="text-lg font-bold mb-1 text-blue-700 dark:text-blue-300">
                     {material.nama_materi || material.title || "Material"}
                   </h4>

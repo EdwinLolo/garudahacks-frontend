@@ -16,6 +16,8 @@ import { useNavigate } from "react-router-dom";
 import { signup } from "../models/auth"; // You'll need to create this function
 
 export default function Register({ onLogin, isAuthenticated }) {
+  const navigate = useNavigate();
+
   const { setSubjects, setMaterials } = useSubjectContext();
   const [formData, setFormData] = useState({
     email: "",
@@ -36,7 +38,6 @@ export default function Register({ onLogin, isAuthenticated }) {
     }
     return false;
   });
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -105,24 +106,8 @@ export default function Register({ onLogin, isAuthenticated }) {
       if (response) {
         // Signup successful
         console.log("Signup successful:", response);
-
-        // Store the token and user data in localStorage
-        localStorage.setItem("access_token", response.session.access_token);
-        localStorage.setItem("refresh_token", response.session.refresh_token);
-        localStorage.setItem("user_data", JSON.stringify(response.user));
-        localStorage.setItem("user_profile", JSON.stringify(response.profile));
-
-        // Update Redux store with user data
-        onLogin({
-          email: response.user.email,
-          name: response.profile?.full_name || response.user.email,
-          role: response.profile?.role || "student",
-          user: response.user,
-          profile: response.profile,
-        });
-
-        // Navigate to dashboard
-        navigate("/", { replace: true });
+        // Redirect to login page after successful registration
+        navigate("/login", { replace: true });
       }
     } catch (error) {
       console.error("Signup error:", error);

@@ -2,7 +2,6 @@ import React from "react";
 import SubjectCard from "../components/SubjectCard";
 import { useSubjectContext } from "../context/SubjectContext";
 
-
 const Dashboard = () => {
   const { subjects } = useSubjectContext();
 

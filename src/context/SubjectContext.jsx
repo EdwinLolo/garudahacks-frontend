@@ -1,64 +1,114 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+
 const SubjectContext = createContext();
 
 export const SubjectProvider = ({ children }) => {
   const [subjects, setSubjects] = useState([]);
-  const [materials, setMaterials] = useState([]);
+  const [isLoadingSubjects, setIsLoadingSubjects] = useState(false);
+  const [subjectsError, setSubjectsError] = useState(null);
 
-  // Fetch materials by subject id
-  const fetchMaterialsBySubject = async (subjectId) => {
+  const fetchSubjectsAdmin = async () => {
+    setIsLoadingSubjects(true);
+    setSubjectsError(null);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/material/get-materials-by-subject/${subjectId}`);
-      const materialsData = await res.json();
-      if (Array.isArray(materialsData)) {
-        // Merge new materials with existing, avoiding duplicates by id
-        setMaterials((prev) => {
-          const existingIds = new Set(prev.map((m) => m.id));
-          const newMaterials = materialsData.filter((m) => !existingIds.has(m.id));
-          return [...prev, ...newMaterials];
-        });
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/subject/get-subjects`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+      const data = await response.json();
+      setSubjects(Array.isArray(data) ? data : []);
     } catch (error) {
-      // Optionally handle error
+      console.error('Error fetching subjects:', error);
+      setSubjectsError('Failed to load subjects. Please try again.');
+      setSubjects([]);
+    } finally {
+      setIsLoadingSubjects(false);
     }
   };
 
-  // Fetch subjects from API by classNumber (grade)
   const fetchSubjectsByGrade = async () => {
+    setIsLoadingSubjects(true);
+    setSubjectsError(null);
     try {
       let grade = 0;
-      try {
-        const userData = JSON.parse(localStorage.getItem("user_data"));
-        if (userData && userData.grade) grade = userData.grade;
-      } catch {}
-      if (!grade) {
-        try {
-          const userProfile = JSON.parse(localStorage.getItem("user_profile"));
-          if (userProfile && userProfile.grade) grade = userProfile.grade;
-        } catch {}
-      }
-      if (!grade) grade = 0;
+      const userProfile = JSON.parse(localStorage.getItem("user_profile") || '{}');
+
+      grade = userProfile.grade || 0;
 
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/subject/get-subjects-by-class/${grade}`
       );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
       setSubjects(Array.isArray(data) ? data : []);
     } catch (error) {
+      console.error('Error fetching subjects:', error);
+      setSubjectsError('Failed to load subjects. Please try again.');
       setSubjects([]);
+    } finally {
+      setIsLoadingSubjects(false);
     }
   };
 
-  // On mount, auto-fetch subjects and materials if user is logged in
+  // Fetch materials by subject id
+  const fetchMaterialsBySubject = async (subjectId) => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/materials/get-materials-by-subject/${subjectId}`);
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const materialsData = await res.json();
+      if (Array.isArray(materialsData)) {
+        setSubjects((prevSubjects) => {
+          return prevSubjects.map((subject) => {
+            if (String(subject.subject_id) === String(subjectId)) {
+              return { ...subject, materials: materialsData };
+            }
+            return subject;
+          });
+        });
+      }
+    } catch (error) {
+      console.error(`Error fetching materials for subject ${subjectId}:`, error);
+      // Decide how to handle this in UI, e.g., show a message, or clear materials if they were previously loaded
+      setSubjects((prevSubjects) => {
+        return prevSubjects.map((subject) => {
+          if (String(subject.subject_id) === String(subjectId)) {
+            // Optionally, clear materials or add an error flag to the subject
+            return { ...subject, materials: [], materialsError: 'Failed to load materials.' };
+          }
+          return subject;
+        });
+      });
+    }
+  };
+
+  // On mount, auto-fetch subjects if user is logged in
   useEffect(() => {
-    const accessToken = localStorage.getItem("access_token");
-    if (accessToken) {
+    const sessionToken = localStorage.getItem("session_token");
+    const userProfile = localStorage.getItem("user_profile");
+    if (sessionToken && userProfile.role == 'admin') {
+      fetchSubjectsAdmin();
+    } else if (sessionToken) {
       fetchSubjectsByGrade();
     }
+    console.log('User profile on mount:', userProfile);
+    console.log('User profile on mount:', JSON.parse(userProfile));
+    console.log("Subjects fetched on mount:", subjects);
   }, []);
 
   return (
-    <SubjectContext.Provider value={{ subjects, setSubjects, materials, setMaterials, fetchSubjectsByGrade, fetchMaterialsBySubject }}>
+    <SubjectContext.Provider value={{
+      subjects,
+      setSubjects,
+      fetchSubjectsByGrade,
+      fetchMaterialsBySubject,
+      fetchSubjectsAdmin,
+      isLoadingSubjects,
+      subjectsError
+    }}>
       {children}
     </SubjectContext.Provider>
   );

@@ -15,20 +15,22 @@ import { login } from "../models/auth";
 import { useSelector } from "react-redux";
 
 export default function Login({ onLogin, isAuthenticated }) {
-  const { setSubjects, setMaterials, fetchSubjectsByGrade } =
-    useSubjectContext();
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const { subjects, fetchSubjectsByGrade, fetchSubjectsAdmin } = useSubjectContext();
+
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== "undefined") {
       return document.documentElement.classList.contains("dark");
     }
     return false;
   });
-  const navigate = useNavigate();
   const reduxIsAuthenticated = useSelector(
     (state) => state.auth.isAuthenticated
   );
@@ -57,39 +59,19 @@ export default function Login({ onLogin, isAuthenticated }) {
       console.log("Login response:", response);
 
       if (response) {
-        // Login successful
         console.log("Login successful:", response);
-
-        // Store the token and user data in localStorage (use same keys as register)
 
         localStorage.setItem("session_token", response.session);
         localStorage.setItem("user_data", JSON.stringify(response.user));
         localStorage.setItem("user_profile", JSON.stringify(response.profile));
 
         // Fetch subjects by grade (class) after login
-        await fetchSubjectsByGrade();
-
-        // Fetch materials by class/grade
-        try {
-          let grade = 0;
-          if (response.user && response.user.grade) grade = response.user.grade;
-          else if (response.profile && response.profile.grade)
-            grade = response.profile.grade;
-          if (!grade) {
-            // fallback: try from localStorage
-            const userData = JSON.parse(localStorage.getItem("user_data"));
-            if (userData && userData.grade) grade = userData.grade;
-          }
-          const res = await fetch(
-            `${
-              import.meta.env.VITE_API_BASE_URL
-            }/material/get-materials-by-class/${grade}`
-          );
-          const materials = await res.json();
-          setMaterials(Array.isArray(materials) ? materials : []);
-        } catch (dataError) {
-          console.warn("Could not load materials from API:", dataError);
+        if (response.profile.role === "admin") {
+          await fetchSubjectsAdmin();
+        } else {
+          await fetchSubjectsByGrade();
         }
+        console.log("Subjects fetched after login:", subjects);
 
         // Update Redux store with user data
         onLogin({

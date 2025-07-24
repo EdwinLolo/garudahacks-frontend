@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 import { getAdminDashboardData, updateUser, deleteUser } from "../models/admin";
+import Loading from "../components/Loading";
 
 export default function AdminDashboard() {
   const [rows, setRows] = useState([]);
@@ -195,15 +196,7 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="pt-24 px-24 flex flex-col items-center mx-auto">
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          height={400}>
-          <CircularProgress />
-        </Box>
-      </div>
+      <Loading />
     );
   }
 
