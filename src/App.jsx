@@ -8,6 +8,7 @@ import Navbar from "./layout/Navbar";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Footer from "./layout/Footer";
+import SubjectDetail from "./pages/SubjectDetail";
 
 function PrivateRoute({ isAuthenticated, children }) {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
@@ -48,6 +49,14 @@ function AppContent() {
             element={
               <PrivateRoute isAuthenticated={isAuthenticated}>
                 <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/subject/:id"
+            element={
+              <PrivateRoute isAuthenticated={isAuthenticated}>
+                <SubjectDetail />
               </PrivateRoute>
             }
           />

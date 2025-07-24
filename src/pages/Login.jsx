@@ -32,11 +32,12 @@ export default function Login({ onLogin, isAuthenticated }) {
         // Example: hardcoded user for demo
         const validEmail = "admin@gmail.com";
         const validPassword = "admin";
+        const validName = "Admin User";
         setIsLoading(true);
         setTimeout(() => {
             setIsLoading(false);
             if (email === validEmail && password === validPassword) {
-                onLogin({ email });
+                onLogin({ email, name: validName });
                 navigate("/", { replace: true });
             } else {
                 setError("Invalid email or password.");
