@@ -71,13 +71,13 @@ export default function AdminDashboard() {
             title="Edit">
             <Edit />
           </IconButton>
-          <IconButton
+          {/* <IconButton
             color="error"
             size="small"
             onClick={() => handleDeleteClick(params.row)}
             title="Delete">
             <Delete />
-          </IconButton>
+          </IconButton> */}
         </Box>
       ),
     },
