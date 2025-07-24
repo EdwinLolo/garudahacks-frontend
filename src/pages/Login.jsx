@@ -66,7 +66,7 @@ export default function Login({ onLogin, isAuthenticated }) {
         localStorage.setItem("user_profile", JSON.stringify(response.profile));
 
         // Fetch subjects by grade (class) after login
-        if (response.profile.role === "admin") {
+        if (response.profile.role === "admin" || response.profile.role === "teacher") {
           await fetchSubjectsAdmin();
         } else {
           await fetchSubjectsByGrade();
@@ -98,8 +98,6 @@ export default function Login({ onLogin, isAuthenticated }) {
     if (reduxIsAuthenticated && userRole) {
       if (userRole === "admin") {
         navigate("/admin", { replace: true });
-      } else if (userRole === "teacher") {
-        navigate("/teacher", { replace: true });
       } else {
         navigate("/", { replace: true });
       }

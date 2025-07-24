@@ -98,7 +98,6 @@ export const SubjectProvider = ({ children }) => {
       }
       const newSubject = await res.json();
       setSubjects((prevSubjects) => [...prevSubjects, newSubject]);
-      return newSubject;
     } catch (error) {
       console.error('Error posting subject:', error);
       throw new Error('Failed to add subject');
@@ -108,14 +107,14 @@ export const SubjectProvider = ({ children }) => {
   // On mount, auto-fetch subjects if user is logged in
   useEffect(() => {
     const sessionToken = localStorage.getItem("session_token");
-    const userProfile = localStorage.getItem("user_profile");
-    if (sessionToken && userProfile.role == 'admin') {
+    const userProfile = JSON.parse(localStorage.getItem("user_profile"));
+    if (sessionToken && (userProfile.role == 'admin' || userProfile.role == 'teacher')) {
       fetchSubjectsAdmin();
+      console.log("Admin or teacher logged in, fetching all subjects.");
     } else if (sessionToken) {
       fetchSubjectsByGrade();
+      console.log("User logged in, fetching subjects by grade.");
     }
-    console.log('User profile on mount:', userProfile);
-    console.log('User profile on mount:', JSON.parse(userProfile));
     console.log("Subjects fetched on mount:", subjects);
   }, []);
 
