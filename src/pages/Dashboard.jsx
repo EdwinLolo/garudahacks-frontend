@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import subjectsData from "../data/subjects.json"; 
-import SubjectCard from "../components/SubjectCard"; 
+import subjectsData from "../data/subjects.json";
+import SubjectCard from "../components/SubjectCard";
 
 const Dashboard = () => {
   const [subjects, setSubjects] = useState([]);
@@ -14,12 +14,12 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <section className="py-20 bg-white text-gray-800">
-      <div className="container mx-auto px-4 text-center">
+    <section className="min-h-screen pt-22 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors">
+      <div className="container mx-auto text-center">
         <h2 className="text-3xl md:text-4xl font-extrabold mb-4">
-          All Your <span className="text-blue-500">Subjects</span>
+          All Your <span className="text-blue-500 dark:text-blue-400">Subjects</span>
         </h2>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-12">
+        <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-12">
           Browse the subjects available in your dashboard and continue your learning journey.
         </p>
 
