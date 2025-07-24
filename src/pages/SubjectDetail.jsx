@@ -1,14 +1,33 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import subjectsData from "../data/subjects.json";
 import materialsData from "../data/materials.json";
 
 const SubjectDetail = () => {
+  const [role, setRole] = useState(null);
+  const [loadingRole, setLoadingRole] = useState(true);
+  const [showAddForm, setShowAddForm] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
   const subjectId = parseInt(id, 10);
   const subject = subjectsData.find((s) => s.id === subjectId);
   const subjectMaterials = materialsData.find((m) => m.subjectId === subjectId)?.materials || [];
+
+  React.useEffect(() => {
+    const fetchRole = async () => {
+      try {
+        const response = await fetch('/api/user/role');
+        if (!response.ok) throw new Error('Failed to fetch role');
+        const data = await response.json();
+        setRole(data.role);
+      } catch (error) {
+        setRole(null);
+      } finally {
+        setLoadingRole(false);
+      }
+    };
+    fetchRole();
+  }, []);
 
   if (!subject) {
     return (
@@ -17,6 +36,14 @@ const SubjectDetail = () => {
           <h2 className="text-2xl font-bold mb-4">Subject not found</h2>
           <button onClick={() => navigate(-1)} className="px-4 py-2 bg-blue-600 text-white rounded-lg">Go Back</button>
         </div>
+      </div>
+    );
+  }
+
+  if (loadingRole) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center text-blue-500">Loading...</div>
       </div>
     );
   }
@@ -33,7 +60,30 @@ const SubjectDetail = () => {
           <p className="text-lg text-gray-700 dark:text-gray-300">{subject.description}</p>
         </div>
         <div>
-          <h3 className="text-2xl font-semibold mb-4">Learning Materials</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-2xl font-semibold">Learning Materials</h3>
+            {role === 'teacher' && (
+              <button
+                onClick={() => setShowAddForm((prev) => !prev)}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+              >
+                {showAddForm ? 'Cancel' : 'Add Material'}
+              </button>
+            )}
+          </div>
+          {showAddForm && role === 'teacher' && (
+            <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900 rounded-lg border border-blue-100 dark:border-blue-800">
+              <div className="mb-2 text-blue-700 dark:text-blue-300 font-semibold">
+                Prompt your material here
+              </div>
+              <form>
+                <div className="mb-2">
+                  <input type="text" placeholder="Title" className="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 mb-2" />
+                </div>
+                <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Submit</button>
+              </form>
+            </div>
+          )}
           {subjectMaterials.length === 0 ? (
             <p className="text-gray-500 dark:text-gray-400">No materials available for this subject yet.</p>
           ) : (
