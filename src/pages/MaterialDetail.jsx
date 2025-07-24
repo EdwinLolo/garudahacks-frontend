@@ -26,48 +26,48 @@ function parseLessonPacket(lessonPacket) {
 }
 
 const MaterialDetail = () => {
-  const { id } = useParams();
-  const { materials, subjects } = useSubjectContext();
-  const material = materials.find((m) => String(m.id) === String(id));
-  if (!material) {
+  const { id: subjectId } = useParams();
+  const { subjects } = useSubjectContext();
+  const [materials, setMaterials] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchMaterials = async () => {
+      try {
+        const response = await fetch('https://garudahacks6-express-be-zy4zf.ondigitalocean.app/materials/get-materials');
+        const data = await response.json();
+        // Filter materials by subject_id
+        const filtered = Array.isArray(data) ? data.filter(m => String(m.subject_id) === String(subjectId)) : [];
+        setMaterials(filtered);
+      } catch {
+        setMaterials([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMaterials();
+  }, [subjectId]);
+
+  if (loading) {
+    return <div className="p-6 text-center text-blue-500">Loading...</div>;
+  }
+  if (!materials.length) {
     return <div className="p-6 text-center text-red-500">Material not found.</div>;
   }
-  const subject = subjects.find((s) => String(s.subject_id) === String(material.subject_id));
-  const subjectName = subject ? subject.name || subject.title : "Material Detail";
-
-  // hasil_materi is a JSON string, parse it and extract lesson_packet
-  let lessonPacket = "";
-  try {
-    const hasil = typeof material.hasil_materi === 'string' ? JSON.parse(material.hasil_materi) : material.hasil_materi;
-    lessonPacket = hasil.lesson_packet || "";
-  } catch {
-    lessonPacket = material.lesson_packet || "";
-  }
-  const parsed = parseLessonPacket(lessonPacket);
+  const subject = subjects.find((s) => String(s.subject_id) === String(subjectId));
+  const subjectName = subject
+    ? subject.name || subject.title
+    : materials[0].subject_name || materials[0].nama_materi || "Material Detail";
 
   return (
     <div className="max-w-3xl mx-auto px-4 md:px-0 py-8">
-      <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-300 mb-2">{subjectName}</h1>
-      <h2 className="text-xl font-semibold mb-6">{material.nama_materi || parsed.title}</h2>
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 border border-gray-100 dark:border-gray-700">
-        {parsed.lessonPlan && (
-          <section className="mb-4">
-            <h4 className="text-md font-semibold mb-1">Lesson Plan for Teacher</h4>
-            <div className="prose dark:prose-invert whitespace-pre-line">{parsed.lessonPlan}</div>
-          </section>
-        )}
-        {parsed.readingPassage && (
-          <section className="mb-4">
-            <h4 className="text-md font-semibold mb-1">Reading Passage for Students</h4>
-            <div className="prose dark:prose-invert whitespace-pre-line">{parsed.readingPassage}</div>
-          </section>
-        )}
-        {parsed.worksheet && (
-          <section className="mb-4">
-            <h4 className="text-md font-semibold mb-1">Worksheet: Questions & Answers</h4>
-            <div className="prose dark:prose-invert whitespace-pre-line">{parsed.worksheet}</div>
-          </section>
-        )}
+      <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-300 mb-6">{subjectName}</h1>
+      <div className="space-y-4">
+        {materials.map((material) => (
+          <div key={material.id} className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 border border-gray-100 dark:border-gray-700">
+            <h2 className="text-xl font-semibold mb-2">{material.nama_materi || material.title || "Material"}</h2>
+          </div>
+        ))}
       </div>
     </div>
   );

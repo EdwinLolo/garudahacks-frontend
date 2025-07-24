@@ -9,9 +9,26 @@ const SubjectDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const subjectId = String(id);
-  const { subjects, materials } = useSubjectContext();
+  const { subjects } = useSubjectContext();
   const subject = subjects.find((s) => String(s.subject_id) === subjectId);
-  const subjectMaterials = materials.filter((m) => String(m.subject_id) === subjectId);
+  const [subjectMaterials, setSubjectMaterials] = React.useState([]);
+  const [loadingMaterials, setLoadingMaterials] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchMaterials = async () => {
+      try {
+        const response = await fetch('https://garudahacks6-express-be-zy4zf.ondigitalocean.app/materials/get-materials');
+        const data = await response.json();
+        const filtered = Array.isArray(data) ? data.filter(m => String(m.subject_id) === subjectId) : [];
+        setSubjectMaterials(filtered);
+      } catch {
+        setSubjectMaterials([]);
+      } finally {
+        setLoadingMaterials(false);
+      }
+    };
+    fetchMaterials();
+  }, [subjectId]);
 
   React.useEffect(() => {
     const fetchRole = async () => {
@@ -40,6 +57,14 @@ const SubjectDetail = () => {
     );
   }
 
+  if (loadingMaterials) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center text-blue-500">Loading materials...</div>
+      </div>
+    );
+  }
+
   if (loadingRole) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -54,7 +79,7 @@ const SubjectDetail = () => {
         <button onClick={() => navigate(-1)} className="mb-6 px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-800 transition">&larr; Back</button>
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 mb-8 border border-gray-100 dark:border-gray-700">
           <div className="flex items-start justify-between mb-2">
-            <h2 className="text-3xl font-bold">{subject.title}</h2>
+            <h2 className="text-3xl font-bold">{subject.name}</h2>
           </div>
           {/* Add description if available in subject */}
           {subject.description && (
@@ -92,9 +117,7 @@ const SubjectDetail = () => {
             <ul className="space-y-4">
               {subjectMaterials.map((material) => (
                 <li key={material.id} className="bg-blue-50 dark:bg-blue-900 rounded-lg p-4 border border-blue-100 dark:border-blue-800">
-                  <h4 className="text-lg font-bold mb-1 text-blue-700 dark:text-blue-300">{material.title}</h4>
-                  {/* Optionally show a preview of lesson_packet or a summary */}
-                  <p className="text-gray-700 dark:text-gray-200 truncate">{material.lesson_packet?.slice(0, 120)}...</p>
+                  <h4 className="text-lg font-bold mb-1 text-blue-700 dark:text-blue-300">{material.nama_materi || material.title || "Material"}</h4>
                 </li>
               ))}
             </ul>
