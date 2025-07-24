@@ -32,19 +32,19 @@ const SubjectDetail = () => {
   }, [subjectId]);
 
   React.useEffect(() => {
-    const fetchRole = async () => {
+    
+    const profileStr = localStorage.getItem('user_profile');
+    let userRole = null;
+    if (profileStr) {
       try {
-        const response = await fetch('/api/user/role');
-        if (!response.ok) throw new Error('Failed to fetch role');
-        const data = await response.json();
-        setRole(data.role);
-      } catch (error) {
-        setRole(null);
-      } finally {
-        setLoadingRole(false);
+        const profile = JSON.parse(profileStr);
+        userRole = profile.role || null;
+      } catch {
+        userRole = null;
       }
-    };
-    fetchRole();
+    }
+    setRole(userRole);
+    setLoadingRole(false);
   }, []);
 
   if (!subject) {
