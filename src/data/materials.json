@@ -1,0 +1,47 @@
+[
+  {
+    "subjectId": 1,
+    "materials": [
+      {
+        "id": 1,
+        "title": "Introduction to Programming",
+        "content": "Learn the basics of programming using Python."
+      },
+      {
+        "id": 2,
+        "title": "Web Development Fundamentals",
+        "content": "Understand HTML, CSS, and JavaScript to build web pages."
+      }
+    ]
+  },
+  {
+    "subjectId": 2,
+    "materials": [
+      {
+        "id": 1,
+        "title": "Entrepreneurship 101",
+        "content": "Explore the fundamentals of starting a business."
+      },
+      {
+        "id": 2,
+        "title": "Digital Marketing Basics",
+        "content": "Learn about SEO, SEM, and social media marketing."
+      }
+    ]
+  },
+  {
+    "subjectId": 3,
+    "materials": [
+      {
+        "id": 1,
+        "title": "Graphic Design Principles",
+        "content": "Discover the basics of visual design and composition."
+      },
+      {
+        "id": 2,
+        "title": "Creative Writing",
+        "content": "Develop your storytelling and writing skills."
+      }
+    ]
+  }
+]
