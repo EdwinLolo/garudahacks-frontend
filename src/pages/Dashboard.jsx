@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from "react";
-import subjectsData from "../data/subjects.json";
+// import subjectsData from "../data/subjects.json";
 import SubjectCard from "../components/SubjectCard";
 
 const Dashboard = () => {
   const [subjects, setSubjects] = useState([]);
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      setSubjects(subjectsData);
-    }, 500);
-
-    return () => clearTimeout(timeout);
+    const fetchSubjects = async () => {
+      try {
+        const response = await fetch('https://garudahacks6-express-be-zy4zf.ondigitalocean.app/subject/get-subjects');
+        const data = await response.json();
+        setSubjects(data);
+      } catch (error) {
+        setSubjects([]);
+      }
+    };
+    fetchSubjects();
   }, []);
 
   return (
