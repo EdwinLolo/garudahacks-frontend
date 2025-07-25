@@ -170,7 +170,12 @@ const MaterialDetail = () => {
             .then(data => {
               // This `data` will now correctly be the parsed JSON object or `null`
               console.log("Fetched existing grade data:", data); // This should now show actual data or null
-              if (data) { // If data is not null, a grade was found
+              // Treat null, empty object, or error property as no grade
+              if (
+                data &&
+                !(typeof data === 'object' && Object.keys(data).length === 0) &&
+                !(typeof data === 'object' && data.error)
+              ) {
                 setExistingGrade(data); // Set the grade data
                 setIsSubmitted(true); // Mark as submitted if grade exists
                 setGradedResults({ // Populate gradedResults for display if needed
@@ -190,7 +195,7 @@ const MaterialDetail = () => {
                   }
                 }
               } else {
-                // If `data` is null (no existing grade found)
+                // If `data` is null, empty object, or error (no existing grade found)
                 setExistingGrade(null);
                 setIsSubmitted(false); // Make sure these are reset
                 setGradedResults(null);
