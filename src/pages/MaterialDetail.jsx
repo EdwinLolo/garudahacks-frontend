@@ -464,15 +464,21 @@ const MaterialDetail = () => {
         }
       });
 
-      // The grade is just the sum of manual grades (max possible: manualCount * 20)
-      // If you want to send as percentage, you can do: (totalManualGradedScore / (manualCount * 20)) * 100
-      // But as per request, just sum the grades
+      // Get the previous grade (auto-graded part) from the selectedStudentSubmission
+      let previousGrade = 0;
+      if (selectedStudentSubmission && typeof selectedStudentSubmission.grade === 'number') {
+        previousGrade = selectedStudentSubmission.grade;
+      }
+
+      // Add manual grades to previous grade
+      const newTotalGrade = previousGrade + totalManualGradedScore;
+
       const isFullyGraded = questions
         .filter(q => q.type === "short_answer" || q.type === "essay")
         .every(q => manualGrades[q.number] !== undefined && manualGrades[q.number] !== null && manualGrades[q.number] >= 0);
 
       const payload = {
-        grade: totalManualGradedScore,
+        grade: newTotalGrade,
         status: isFullyGraded,
       };
 
