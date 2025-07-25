@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import SubjectCard from "../components/SubjectCard";
 import { useSubjectContext } from "../context/SubjectContext";
 
+// Re-using AddSubjectForm as it's already functional
 function AddSubjectForm({ onClose }) {
   const { postSubject } = useSubjectContext();
   const [classNumber, setClassNumber] = useState("");
@@ -90,7 +91,8 @@ function AddSubjectForm({ onClose }) {
 
 const Dashboard = () => {
   const { subjects } = useSubjectContext();
-  const [showAddPopup, setShowAddPopup] = React.useState(false);
+  const [showAddPopup, setShowAddPopup] = useState(false);
+  const [selectedGradeFilter, setSelectedGradeFilter] = useState("all");
 
   let role = null;
   const profileStr = localStorage.getItem("user_profile");
@@ -103,24 +105,77 @@ const Dashboard = () => {
     }
   }
 
+  const uniqueGrades = useMemo(() => {
+    if (!subjects) return [];
+    const grades = new Set(subjects.map(subject => subject.class));
+    return Array.from(grades).sort((a, b) => a - b);
+  }, [subjects]);
+
+  const filteredSubjects = useMemo(() => {
+    if (selectedGradeFilter === "all") {
+      return subjects;
+    }
+    return subjects.filter(subject => String(subject.class) === selectedGradeFilter);
+  }, [subjects, selectedGradeFilter]);
+
   return (
     <section className="min-h-screen pt-22 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors">
-      <div className="container mx-auto text-center">
+      <div className="container mx-auto text-center px-4">
         <h2 className="text-3xl md:text-4xl font-extrabold mb-4">
           All Your <span className="text-blue-500 dark:text-blue-400">Subjects</span>
         </h2>
-        <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-12">
+        <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-8">
           Browse the subjects available in your dashboard and continue your learning journey.
         </p>
 
-        {(role === "teacher" || role === "admin") && (
-          <button
-            className="mb-8 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-            onClick={() => setShowAddPopup(true)}
-          >
-            Add Subject
-          </button>
-        )}
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8">
+          {(role === "teacher" || role === "admin") && (
+            <>
+              <button
+                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                onClick={() => setShowAddPopup(true)}
+              >
+                Add Subject
+              </button>
+
+              {uniqueGrades.length > 0 && (
+                <div className="relative inline-block text-left w-full sm:w-auto">
+                  <label htmlFor="grade-filter" className="sr-only">Filter by Grade</label>
+                  <select
+                    id="grade-filter"
+                    value={selectedGradeFilter}
+                    onChange={(e) => setSelectedGradeFilter(e.target.value)}
+                    className="w-full px-4 py-2 rounded-lg border-2 border-blue-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 appearance-none pr-10 cursor-pointer focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  >
+                    <option value="all">All Grades</option>
+                    {uniqueGrades.map(grade => (
+                      <option key={grade} value={grade}>
+                        Grade {grade}
+                      </option>
+                    ))}
+                  </select>
+                  {/* Custom dropdown arrow using inline SVG */}
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="h-5 w-5"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.17 8.29a.75.75 0 01.06-1.08z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
 
         {showAddPopup && (
           <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-transparent z-50">
@@ -138,13 +193,18 @@ const Dashboard = () => {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          {subjects && subjects.length > 0 ? (
-            subjects.map((subject) => (
+          {filteredSubjects && filteredSubjects.length > 0 ? (
+            filteredSubjects.map((subject) => (
               <SubjectCard key={subject.id} subject={subject} />
             ))
           ) : (
             <div className="col-span-2 text-center text-gray-500 dark:text-gray-400">
-              No subjects found for your class.
+              {selectedGradeFilter === "all" && (role === "teacher" || role === "admin")
+                ? "No subjects found."
+                : selectedGradeFilter !== "all" && (role === "teacher" || role === "admin")
+                  ? `No subjects found for Grade ${selectedGradeFilter}.`
+                  : "No subjects available."
+              }
             </div>
           )}
         </div>

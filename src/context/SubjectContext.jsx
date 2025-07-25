@@ -115,8 +115,11 @@ export const SubjectProvider = ({ children }) => {
       fetchSubjectsByGrade();
       console.log("User logged in, fetching subjects by grade.");
     }
-    console.log("Subjects fetched on mount:", subjects);
   }, []);
+
+  useEffect(() => {
+    console.log("Subjects updated:", subjects);
+  }, [subjects]);
 
   return (
     <SubjectContext.Provider value={{

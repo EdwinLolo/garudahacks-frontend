@@ -421,22 +421,8 @@ export default function Register({ onLogin, isAuthenticated }) {
             <p className="text-sm transition-colors duration-300 dark:text-gray-400">
               © 2025 LearnMuse. Empowering minds, one lesson at a time.
             </p>
-            <div className="flex items-center justify-center space-x-6 mt-2">
-              <a
-                href="#"
-                className="text-xs transition-colors hover:text-blue-600 dark:text-gray-500">
-                Privacy Policy
-              </a>
-              <a
-                href="#"
-                className="text-xs transition-colors hover:text-blue-600 dark:text-gray-500">
-                Terms of Service
-              </a>
-              <a
-                href="#"
-                className="text-xs transition-colors hover:text-blue-600 dark:text-gray-500">
-                Support
-              </a>
+            <div className="text-center text-xs text-gray-400 dark:text-gray-500 mt-2">
+              Generated with assistance from an AI (OpenAI, Claude, Gemini, etc.)
             </div>
           </div>
         </div>
