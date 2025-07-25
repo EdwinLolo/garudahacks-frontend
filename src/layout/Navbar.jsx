@@ -86,15 +86,15 @@ const Navbar = ({ onLogout, isAuthenticated }) => {
           </Link>
           {/* <Link to="/dashboard" className="hover:text-blue-500 dark:hover:text-blue-400 transition">Dashboard</Link> */}
           <Link
-            to="/about"
+            to="/study-video"
             className="hover:text-blue-500 dark:hover:text-blue-400 transition">
-            About
+            Study Video
           </Link>
-          <Link
+          {/* <Link
             to="/contact"
             className="hover:text-blue-500 dark:hover:text-blue-400 transition">
             Contact
-          </Link>
+          </Link> */}
         </nav>
         {/* Right: Profile Dropdown */}
         <div className="flex items-center gap-2 min-w-[48px] px-1">

@@ -17,6 +17,7 @@ import Footer from "./layout/Footer";
 import SubjectDetail from "./pages/SubjectDetail";
 import MaterialDetail from "./pages/MaterialDetail";
 import AdminDashboard from "./pages/AdminDashboard";
+import StudyVideo from "./pages/StudyVideo";
 import { SubjectProvider } from "./context/SubjectContext";
 
 function PrivateRoute({ isAuthenticated, children }) {
@@ -95,6 +96,14 @@ function AppContent() {
             element={
               <PrivateRoute isAuthenticated={isAuthenticated}>
                 <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/study-video"
+            element={
+              <PrivateRoute isAuthenticated={isAuthenticated}>
+                <StudyVideo />
               </PrivateRoute>
             }
           />
