@@ -490,11 +490,25 @@ const MaterialDetail = () => {
       const updatedGradeEntry = await response.json();
       console.log('Manual grade update successful:', updatedGradeEntry);
 
-      setStudentScoresList(prevList =>
-        prevList.map(item =>
-          item.grade_id === updatedGradeEntry.grade_id ? { ...item, grade: updatedGradeEntry.grade, status: updatedGradeEntry.status } : item
-        )
-      );
+      // Refetch the student scores list to get the latest grades from backend
+      try {
+        setLoadingStudentScores(true);
+        const scoresResponse = await fetch(`${getBaseUrl()}/grade/material/${materialId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('session_token')}`
+          }
+        });
+        if (scoresResponse.ok) {
+          const scoresData = await scoresResponse.json();
+          setStudentScoresList(scoresData);
+        }
+      } catch (e) {
+        console.error('Error fetching updated student scores:', e);
+        setSubmissionError(`Failed to refresh student scores: ${e.message}`);
+      } finally {
+        setLoadingStudentScores(false);
+      }
 
       setShowManualGradingForm(false);
       setSelectedStudentSubmission(null);
