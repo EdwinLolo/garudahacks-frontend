@@ -90,6 +90,14 @@ const Navbar = ({ onLogout, isAuthenticated }) => {
             className="hover:text-blue-500 dark:hover:text-blue-400 transition">
             Study Video
           </Link>
+          {user.role === "admin" && (
+            <Link
+              to="/admin"
+              className="hover:text-blue-500 dark:hover:text-blue-400 transition">
+              Admin Dashboard
+            </Link>
+          )}
+
           {/* <Link
             to="/contact"
             className="hover:text-blue-500 dark:hover:text-blue-400 transition">
@@ -155,20 +163,17 @@ const Navbar = ({ onLogout, isAuthenticated }) => {
               Home
             </Link>
             <Link
-              to="/dashboard"
+              to="/study-video"
               className="hover:text-blue-500 dark:hover:text-blue-400 transition">
-              Dashboard
+              Study Video
             </Link>
-            <Link
-              to="/about"
-              className="hover:text-blue-500 dark:hover:text-blue-400 transition">
-              About
-            </Link>
-            <Link
-              to="/contact"
-              className="hover:text-blue-500 dark:hover:text-blue-400 transition">
-              Contact
-            </Link>
+            {user.role === "admin" && (
+              <Link
+                to="/adm,in"
+                className="hover:text-blue-500 dark:hover:text-blue-400 transition">
+                Admin Dashboard
+              </Link>
+            )}
           </nav>
           {isAuthenticated && (
             <div className="mt-4 border-t border-gray-200 dark:border-gray-700 pt-3 flex flex-col gap-2">
