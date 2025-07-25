@@ -7,7 +7,7 @@ import { getBaseUrl } from "../models/utils";
 const SubjectDetail = () => {
   const navigate = useNavigate();
 
-  const [role, setRole] = useState(null); // Initialize as null, then set from localStorage
+  const [role, setRole] = useState(null); 
   const [loadingRole, setLoadingRole] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [loadingMaterials, setLoadingMaterials] = useState(false);
@@ -18,7 +18,6 @@ const SubjectDetail = () => {
     fetchMaterialsBySubject,
     isLoadingSubjects,
     subjectsError,
-    setSubjects,
   } = useSubjectContext();
 
   const { id } = useParams();
@@ -32,7 +31,6 @@ const SubjectDetail = () => {
     bahasa: "indonesia",
   });
 
-  // Effect to ensure materials for this subject are loaded when the component mounts
   useEffect(() => {
     async function loadMaterialsForSubject() {
       if (subject && !subject.materials) {
@@ -44,6 +42,7 @@ const SubjectDetail = () => {
     if (!isLoadingSubjects && !subjectsError) {
       loadMaterialsForSubject();
     }
+    console.log("SubjectDetail useEffect - subject:", subject);
   }, [subjectId, subject, fetchMaterialsBySubject, isLoadingSubjects, subjectsError]);
 
   // Effect to load user role from localStorage
@@ -204,7 +203,7 @@ const SubjectDetail = () => {
               </form>
             </div>
           )}
-          {materialAddError && ( // Display error if material addition failed
+          {materialAddError && (
             <p className="text-sm text-red-500 mt-2 text-center">{materialAddError}</p>
           )}
           {subjectMaterials.length === 0 ? (
@@ -215,12 +214,12 @@ const SubjectDetail = () => {
             <ul className="space-y-4">
               {subjectMaterials.map((material) => (
                 <li
-                  key={material.material_id || material.id} // Corrected: Using material.material_id as primary key
+                  key={material.materials_id}
                   className="bg-blue-50 dark:bg-blue-900 rounded-lg p-4 border border-blue-100 dark:border-blue-800 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-800 transition"
-                  onClick={() => navigate(`/material/${material.material_id || material.id}`)} // Navigate to individual material page
+                  onClick={() => navigate(`/subject/${subjectId}/material/${material.materials_id}`)}
                 >
                   <h4 className="text-lg font-bold mb-1 text-blue-700 dark:text-blue-300">
-                    {material.nama_materi || material.title || "Material"}
+                    {material.nama_materi || "Material"}
                   </h4>
                 </li>
               ))}
