@@ -107,7 +107,7 @@ function AppContent() {
             }
           />
           <Route
-            path="/material/:id"
+            path="/subject/:subjectId/material/:materialId"
             element={
               <PrivateRoute isAuthenticated={isAuthenticated}>
                 <MaterialDetail />

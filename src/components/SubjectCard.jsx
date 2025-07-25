@@ -1,8 +1,6 @@
-// SubjectCard.jsx
-import React, { useCallback } from "react"; // Removed unused imports
+import React, { useCallback } from "react"; 
 import { Layers3, BookOpen, Briefcase, Palette } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-// No need to import useSubjectContext for fetchMaterialsBySubject here anymore
 
 const iconMap = {
   "Technology & Programming": BookOpen,
@@ -25,6 +23,7 @@ const SubjectCard = ({ subject }) => {
       onClick={handleClick}
       role="button"
       tabIndex={0}
+      key={subject.subject_id}
     >
       {subject.class && (
         <div className="absolute top-4 right-4">
