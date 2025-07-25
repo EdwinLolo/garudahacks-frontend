@@ -1,4 +1,30 @@
-import React from "react";
+
+import React, { useEffect } from "react";
+import { getBaseUrl } from "../models/utils";
+
+// Helper to determine video type and src
+function getEmbedUrl(url, prompt) {
+  if (!url) return { type: 'unknown', src: '', prompt };
+  // Always prefix with http://152.42.228.196:8000/ if not absolute, always one slash
+  let fullUrl = url;
+  if (!/^https?:\/\//i.test(url)) {
+    fullUrl = `http://152.42.228.196:8000/${url.replace(/^\//, '')}`;
+  }
+  // YouTube
+  const ytMatch = fullUrl.match(/(?:youtu.be\/|youtube.com\/(?:embed\/|v\/|watch\?v=))([\w-]{11})/);
+  if (ytMatch) {
+    return { type: 'youtube', src: `https://www.youtube.com/embed/${ytMatch[1]}`, prompt };
+  }
+  // Common video file extensions
+  const videoExts = ['.mp4', '.webm', '.ogg', '.mov', '.mkv', '.avi', '.wmv', '.flv', '.m4v'];
+  for (const ext of videoExts) {
+    if (fullUrl.toLowerCase().endsWith(ext)) {
+      return { type: 'video', src: fullUrl, prompt };
+    }
+  }
+  // Fallback to iframe
+  return { type: 'iframe', src: fullUrl, prompt };
+}
 
 export default function StudyVideo() {
   const [videos, setVideos] = React.useState([]);
@@ -7,10 +33,31 @@ export default function StudyVideo() {
   const [language, setLanguage] = React.useState("indonesian");
   const [isLoading, setIsLoading] = React.useState(false);
 
+  const baseUrl = getBaseUrl();
   
   const handlePrompt = () => {
     setShowPrompt(true);
   };
+
+  
+
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        const userProfile = JSON.parse(localStorage.getItem("user_profile") || "{}");
+        const userId = userProfile.user_id || userProfile._id || userProfile.userid || userProfile.userId;
+        if (!userId) return;
+        const response = await fetch(`${baseUrl}/math-video/user/${userId}`);
+        console.log("Fetching videos from:", `${baseUrl}/math-video/user/${userId}`);
+        if (!response.ok) throw new Error("Failed to fetch videos");
+        const data = await response.json();
+        setVideos(Array.isArray(data) ? data.map(v => getEmbedUrl(v.video_url, v.prompt)) : []);
+      } catch (err) {
+       console.error("Error fetching videos:", err);
+      }
+    };
+    fetchVideos();
+  }, []);
 
   
   const handlePromptSubmit = async (e) => {
@@ -18,14 +65,24 @@ export default function StudyVideo() {
     setIsLoading(true);
     setShowPrompt(false);
     try {
-      const response = await fetch("http://152.42.228.196:8000/generate-video", {
+      const userProfile = JSON.parse(localStorage.getItem("user_profile") || "{}");
+      const userId = userProfile.user_id || userProfile._id || userProfile.userid || userProfile.userId;
+      if (!userId) throw new Error("User ID not found");
+      const response = await fetch(`${baseUrl}/math-video/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: inputValue, language })
+        body: JSON.stringify({ prompt: inputValue, user_id: userId, bahasa: language })
       });
       if (!response.ok) throw new Error("Failed to generate video");
       const data = await response.json();
-      setVideos((prev) => [...prev, getEmbedUrl(data.url)]);
+      
+      if (userId) {
+        const refetchResponse = await fetch(`${baseUrl}/math-video/user/${userId}`);
+        if (refetchResponse.ok) {
+          const refetchData = await refetchResponse.json();
+          setVideos(Array.isArray(refetchData) ? refetchData.map(v => getEmbedUrl(v.video_url, v.prompt)) : []);
+        }
+      }
     } catch (err) {
       alert("Failed to generate video: " + err.message);
     } finally {
@@ -35,30 +92,10 @@ export default function StudyVideo() {
     }
   };
 
-  const getEmbedUrl = (url) => {
-    // YouTube embed
-    const youtubeMatch = url.match(
-      /(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/
-    );
-    if (youtubeMatch) {
-      return { type: 'youtube', src: `https://www.youtube.com/embed/${youtubeMatch[1]}` };
-    }
-    // MP4 or direct video file
-    if (/\.(mp4|webm|ogg)(\?.*)?$/.test(url) || url.includes('/media/videos/')) {
-      // Add protocol if missing
-      let src = url;
-      if (!/^https?:\/\//.test(url)) {
-        src = 'http://' + url;
-      }
-      return { type: 'video', src };
-    }
-    // Fallback to iframe
-    return { type: 'iframe', src: url };
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setVideos((prev) => [...prev, getEmbedUrl(inputValue)]);
+    setVideos((prev) => [...prev, getEmbedUrl(inputValue, '')]);
     setShowPrompt(false);
     setInputValue("");
   };
@@ -121,15 +158,7 @@ export default function StudyVideo() {
               className="group bg-white/90 dark:bg-gray-800/80 rounded-2xl shadow-xl p-4 flex flex-col items-center border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:scale-[1.03] transition-all duration-200"
             >
               <div className="w-full aspect-video bg-black rounded-xl overflow-hidden mb-3 shadow-lg flex items-center justify-center">
-                {videoObj.type === 'youtube' && (
-                  <iframe
-                    src={videoObj.src}
-                    title={`Study Video ${idx + 1}`}
-                    allowFullScreen
-                    className="w-full h-full border-0"
-                  />
-                )}
-                {videoObj.type === 'video' && (
+                {videoObj.type === 'video' ? (
                   <video
                     src={videoObj.src}
                     controls
@@ -137,18 +166,20 @@ export default function StudyVideo() {
                   >
                     Your browser does not support the video tag.
                   </video>
-                )}
-                {videoObj.type === 'iframe' && (
+                ) : videoObj.type === 'youtube' || videoObj.type === 'iframe' ? (
                   <iframe
                     src={videoObj.src}
                     title={`Study Video ${idx + 1}`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                     className="w-full h-full border-0"
                   />
+                ) : (
+                  <div className="text-white text-center">Cannot play this video format.</div>
                 )}
               </div>
               <div className="text-center w-full">
-                <h4 className="text-lg font-bold text-blue-700 dark:text-blue-200 mb-1">Video {idx + 1}</h4>
+                <h4 className="text-lg font-bold text-blue-700 dark:text-blue-200 mb-1">{videoObj.prompt || `Video ${idx + 1}`}</h4>
                 <span className="text-xs text-gray-500 dark:text-gray-400">Click the + button to add more videos</span>
               </div>
             </div>

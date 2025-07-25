@@ -46,7 +46,7 @@ const SubjectDetail = () => {
     console.log("SubjectDetail useEffect - subject:", subject);
   }, [subjectId, subject, fetchMaterialsBySubject, isLoadingSubjects, subjectsError]);
 
-  // Effect to load user role from localStorage
+
   useEffect(() => {
     const profileStr = localStorage.getItem("user_profile");
     let userRole = null;
@@ -183,7 +183,7 @@ const SubjectDetail = () => {
                 <div className="mb-2">
                   <input
                     type="text"
-                    name="title" // Added name attribute
+                    name="title"
                     placeholder="Title"
                     value={formData.title}
                     onChange={handleInputChange}
@@ -193,7 +193,7 @@ const SubjectDetail = () => {
                 <div className="mb-2">
                   <select
                     id="bahasa"
-                    name="bahasa" // Added name attribute
+                    name="bahasa"
                     required
                     className="w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-200 focus:border-blue-400 backdrop-blur-sm transition-all duration-300 border-gray-200 bg-gray-50/50 hover:bg-white/70 dark:border-gray-600 dark:bg-gray-700/50 dark:text-white dark:hover:bg-gray-700/70"
                     value={formData.bahasa}
