@@ -12,6 +12,7 @@ const SubjectDetail = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [loadingMaterials, setLoadingMaterials] = useState(false);
   const [materialAddError, setMaterialAddError] = useState(null); // State for material add errors
+  const [isAddingMaterial, setIsAddingMaterial] = useState(false); // State for add material loading
 
   const {
     subjects,
@@ -106,6 +107,7 @@ const SubjectDetail = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMaterialAddError(null); // Clear previous errors
+    setIsAddingMaterial(true);
     try {
       const accessToken = localStorage.getItem("access_token"); // Get access token for authorization
 
@@ -129,9 +131,14 @@ const SubjectDetail = () => {
 
       setFormData({ title: "", bahasa: "indonesia" });
       setShowAddForm(false);
+      await fetchMaterialsBySubject(subjectId); // Refetch materials after adding a new one
+      setMaterialAddError(null); // Clear any previous errors
+      console.log("Material added successfully");
     } catch (error) {
       console.error("Error adding material:", error);
       setMaterialAddError(`Failed to add material: ${error.message}`);
+    } finally {
+      setIsAddingMaterial(false);
     }
   };
 
@@ -197,8 +204,10 @@ const SubjectDetail = () => {
                 </div>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
-                  Submit
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition disabled:opacity-60 disabled:cursor-not-allowed"
+                  disabled={isAddingMaterial}
+                >
+                  {isAddingMaterial ? 'Processing...' : 'Submit'}
                 </button>
               </form>
             </div>
