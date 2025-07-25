@@ -74,7 +74,7 @@ const Navbar = ({ onLogout, isAuthenticated }) => {
         {/* Left: Logo/Name */}
         <div className="flex items-center min-w-[120px]">
           <h1 className="text-xl font-bold text-blue-600 dark:text-blue-300">
-            EduDash
+            GenLearn
           </h1>
         </div>
         {/* Center: Routes */}
