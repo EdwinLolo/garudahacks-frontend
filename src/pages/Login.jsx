@@ -138,7 +138,7 @@ export default function Login({ onLogin, isAuthenticated }) {
                 <GraduationCap className="w-6 h-6 text-white" />
               </div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                GenLearn
+                LearnMuse
               </h1>
             </div>
             {/* Dark Mode Toggle */}
@@ -292,7 +292,7 @@ export default function Login({ onLogin, isAuthenticated }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="text-center">
             <p className="text-sm transition-colors duration-300 dark:text-gray-400">
-              © 2025 GenLearn. Empowering minds, one lesson at a time.
+              © 2025 LearnMuse. Empowering minds, one lesson at a time.
             </p>
             <div className="flex items-center justify-center space-x-6 mt-2">
               <a
